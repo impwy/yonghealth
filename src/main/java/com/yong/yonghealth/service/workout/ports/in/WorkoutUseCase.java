@@ -1,4 +1,4 @@
-package com.yong.yonghealth.domain.workout.service.ports.in;
+package com.yong.yonghealth.service.workout.ports.in;
 
 import com.yong.yonghealth.domain.workout.Workout;
 import com.yong.yonghealth.domain.workout.dto.WorkoutDetailResponse;

@@ -1,8 +1,10 @@
-package com.yong.yonghealth.domain.exerciseset;
+package com.yong.yonghealth.controller;
 
+import com.yong.yonghealth.domain.exerciseset.WeightUnit;
 import com.yong.yonghealth.domain.exerciseset.dto.ExerciseSetRequest;
 import com.yong.yonghealth.domain.exerciseset.dto.ExerciseSetResponse;
 import com.yong.yonghealth.global.util.WeightConverter;
+import com.yong.yonghealth.service.exerciseset.ports.in.ExerciseSetUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,23 +17,23 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExerciseSetController {
 
-    private final ExerciseSetService exerciseSetService;
+    private final ExerciseSetUseCase exerciseSetUseCase;
 
     @PostMapping("/api/exercises/{exerciseId}/sets")
     public ResponseEntity<ExerciseSetResponse> create(
             @PathVariable Long exerciseId, @Valid @RequestBody ExerciseSetRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(exerciseSetService.create(exerciseId, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(exerciseSetUseCase.create(exerciseId, request));
     }
 
     @PutMapping("/api/sets/{id}")
     public ResponseEntity<ExerciseSetResponse> update(
             @PathVariable Long id, @Valid @RequestBody ExerciseSetRequest request) {
-        return ResponseEntity.ok(exerciseSetService.update(id, request));
+        return ResponseEntity.ok(exerciseSetUseCase.update(id, request));
     }
 
     @DeleteMapping("/api/sets/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        exerciseSetService.delete(id);
+        exerciseSetUseCase.delete(id);
         return ResponseEntity.noContent().build();
     }
 

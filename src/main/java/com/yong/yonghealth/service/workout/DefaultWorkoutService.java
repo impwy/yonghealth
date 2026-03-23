@@ -1,11 +1,11 @@
-package com.yong.yonghealth.domain.workout.service;
+package com.yong.yonghealth.service.workout;
 
 import com.yong.yonghealth.domain.workout.Workout;
 import com.yong.yonghealth.domain.workout.WorkoutRepository;
 import com.yong.yonghealth.domain.workout.dto.WorkoutDetailResponse;
 import com.yong.yonghealth.domain.workout.dto.WorkoutRequest;
 import com.yong.yonghealth.domain.workout.dto.WorkoutResponse;
-import com.yong.yonghealth.domain.workout.service.ports.in.WorkoutUseCase;
+import com.yong.yonghealth.service.workout.ports.in.WorkoutUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

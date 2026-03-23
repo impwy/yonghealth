@@ -1,4 +1,4 @@
-package com.yong.yonghealth.domain.workout.service;
+package com.yong.yonghealth.service.workout;
 
 import com.yong.yonghealth.domain.workout.Workout;
 import com.yong.yonghealth.domain.workout.WorkoutRepository;

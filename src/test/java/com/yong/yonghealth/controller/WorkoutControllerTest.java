@@ -1,9 +1,9 @@
-package com.yong.yonghealth.domain.workout;
+package com.yong.yonghealth.controller;
 
 import com.yong.yonghealth.domain.workout.dto.WorkoutDetailResponse;
 import com.yong.yonghealth.domain.workout.dto.WorkoutRequest;
 import com.yong.yonghealth.domain.workout.dto.WorkoutResponse;
-import com.yong.yonghealth.domain.workout.service.ports.in.WorkoutUseCase;
+import com.yong.yonghealth.service.workout.ports.in.WorkoutUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

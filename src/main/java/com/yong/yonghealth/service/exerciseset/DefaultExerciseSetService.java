@@ -1,9 +1,12 @@
-package com.yong.yonghealth.domain.exerciseset;
+package com.yong.yonghealth.service.exerciseset;
 
 import com.yong.yonghealth.domain.exercise.Exercise;
-import com.yong.yonghealth.domain.exercise.ExerciseService;
+import com.yong.yonghealth.domain.exerciseset.ExerciseSet;
+import com.yong.yonghealth.domain.exerciseset.ExerciseSetRepository;
 import com.yong.yonghealth.domain.exerciseset.dto.ExerciseSetRequest;
 import com.yong.yonghealth.domain.exerciseset.dto.ExerciseSetResponse;
+import com.yong.yonghealth.service.exercise.ports.in.ExerciseUseCase;
+import com.yong.yonghealth.service.exerciseset.ports.in.ExerciseSetUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,14 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ExerciseSetService {
+public class DefaultExerciseSetService implements ExerciseSetUseCase {
 
     private final ExerciseSetRepository exerciseSetRepository;
-    private final ExerciseService exerciseService;
+    private final ExerciseUseCase exerciseUseCase;
 
+    @Override
     @Transactional
     public ExerciseSetResponse create(Long exerciseId, ExerciseSetRequest request) {
-        Exercise exercise = exerciseService.getExercise(exerciseId);
+        Exercise exercise = exerciseUseCase.getExercise(exerciseId);
 
         ExerciseSet exerciseSet = ExerciseSet.builder()
                 .exercise(exercise)
@@ -32,6 +36,7 @@ public class ExerciseSetService {
         return ExerciseSetResponse.from(exerciseSetRepository.save(exerciseSet));
     }
 
+    @Override
     @Transactional
     public ExerciseSetResponse update(Long id, ExerciseSetRequest request) {
         ExerciseSet exerciseSet = getExerciseSet(id);
@@ -44,6 +49,7 @@ public class ExerciseSetService {
         return ExerciseSetResponse.from(exerciseSet);
     }
 
+    @Override
     @Transactional
     public void delete(Long id) {
         ExerciseSet exerciseSet = getExerciseSet(id);
