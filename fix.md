@@ -1,79 +1,48 @@
-# 패키지 구조 리팩토링 - domain / service 분리
+# 패키지 구조 리팩토링 - 계층형 패키지 구조
 
 ## 목표
-`domain` 패키지에는 Entity, Repository, DTO만 두고, `service`와 `controller`를 별도 최상위 패키지로 분리한다.
-Unit Test는 JPA 없이 순수 Mockito로 동작하도록 한다.
+도메인별 하위 패키지를 없애고, 계층별 플랫 패키지 구조로 변경한다.
 
-## 변경 전 구조
+## 변경 전 → 변경 후
 ```
-com.yong.yonghealth/
-├── domain/
-│   ├── workout/
-│   │   ├── Workout.java, WorkoutRepository.java, WorkoutController.java
-│   │   ├── dto/ (Request, Response, DetailResponse)
-│   │   └── service/ (DefaultWorkoutService, ports/in/WorkoutUseCase)
-│   ├── exercise/
-│   │   ├── Exercise.java, ExerciseRepository.java, ExerciseController.java, ExerciseService.java
-│   │   └── dto/
-│   └── exerciseset/
-│       ├── ExerciseSet.java, ExerciseSetRepository.java, ExerciseSetController.java, ExerciseSetService.java
-│       ├── WeightUnit.java
-│       └── dto/
-```
-
-## 변경 후 구조
-```
-com.yong.yonghealth/
-├── domain/
-│   ├── workout/ (Workout, WorkoutRepository, dto/)
-│   ├── exercise/ (Exercise, ExerciseRepository, dto/)
-│   └── exerciseset/ (ExerciseSet, ExerciseSetRepository, WeightUnit, dto/)
-├── service/
-│   ├── workout/
-│   │   ├── ports/in/WorkoutUseCase.java
-│   │   └── DefaultWorkoutService.java
-│   ├── exercise/
-│   │   ├── ports/in/ExerciseUseCase.java
-│   │   └── DefaultExerciseService.java
-│   └── exerciseset/
-│       ├── ports/in/ExerciseSetUseCase.java
-│       └── DefaultExerciseSetService.java
-├── controller/
-│   ├── WorkoutController.java
-│   ├── ExerciseController.java
-│   └── ExerciseSetController.java
+변경 전:                              변경 후:
+domain/workout/Workout.java       →  domain/Workout.java
+domain/exercise/Exercise.java     →  domain/Exercise.java
+domain/exerciseset/ExerciseSet.java → domain/ExerciseSet.java
+domain/exerciseset/WeightUnit.java → domain/WeightUnit.java
+domain/workout/dto/*.java         →  dto/WorkoutRequest.java 등
+domain/workout/WorkoutRepository  →  repository/WorkoutRepository.java
+service/workout/Default*          →  service/DefaultWorkoutService.java
+service/workout/ports/in/*        →  service/ports/in/WorkoutUseCase.java
+controller/ (유지)                →  controller/ (유지)
 ```
 
 ## 체크리스트
 
-### 1. Workout 패키지 분리
-- [x] `domain/workout/service/` → `service/workout/`로 이동 (DefaultWorkoutService, ports/in/WorkoutUseCase)
-- [x] `domain/workout/WorkoutController.java` → `controller/WorkoutController.java`로 이동
-- [x] 패키지 선언 및 import 수정
+### 1. domain 패키지 (Entity만)
+- [x] Workout, Exercise, ExerciseSet, WeightUnit → `domain/` 플랫으로 이동
+- [x] BaseTimeEntity는 `domain/`으로 이동
 
-### 2. Exercise 인터페이스 분리 + 패키지 이동
-- [x] `service/exercise/ports/in/ExerciseUseCase.java` 인터페이스 생성
-- [x] `domain/exercise/ExerciseService.java` → `service/exercise/DefaultExerciseService.java`로 이동+리네임
-- [x] `domain/exercise/ExerciseController.java` → `controller/ExerciseController.java`로 이동
-- [x] Controller가 ExerciseUseCase 인터페이스에 의존하도록 수정
+### 2. dto 패키지
+- [x] 모든 DTO → `dto/` 플랫으로 이동
 
-### 3. ExerciseSet 인터페이스 분리 + 패키지 이동
-- [x] `service/exerciseset/ports/in/ExerciseSetUseCase.java` 인터페이스 생성
-- [x] `domain/exerciseset/ExerciseSetService.java` → `service/exerciseset/DefaultExerciseSetService.java`로 이동+리네임
-- [x] `domain/exerciseset/ExerciseSetController.java` → `controller/ExerciseSetController.java`로 이동
-- [x] Controller가 ExerciseSetUseCase 인터페이스에 의존하도록 수정
+### 3. repository 패키지
+- [x] 모든 Repository → `repository/` 플랫으로 이동
 
-### 4. Unit Test 작성 (JPA 없이 순수 Mockito)
-- [x] DefaultWorkoutServiceTest 패키지 이동 (service/workout/)
-- [x] DefaultExerciseServiceTest 작성 (4개 테스트)
-- [x] DefaultExerciseSetServiceTest 작성 (4개 테스트)
-- [x] WorkoutControllerTest 패키지 이동 (controller/) + JPA 의존 제거
-- [x] ExerciseControllerTest 작성 (4개 테스트)
-- [x] ExerciseSetControllerTest 작성 (5개 테스트)
+### 4. service 패키지
+- [x] DefaultWorkoutService, DefaultExerciseService, DefaultExerciseSetService → `service/` 플랫
+- [x] WorkoutUseCase, ExerciseUseCase, ExerciseSetUseCase → `service/ports/in/` 플랫
 
-### 5. 정리
-- [x] 기존 파일 삭제 확인
-- [x] 컴파일 검증 (`./gradlew compileJava`) ✓
-- [x] 테스트 검증 (`./gradlew test`) ✓ 전체 통과
-- [x] contextLoads 테스트 - DB 없을 때 스킵하도록 @EnabledIfEnvironmentVariable 적용
+### 5. controller 패키지 (이미 플랫)
+- [x] import 수정만
+
+### 6. global 패키지
+- [x] import 수정 (BaseTimeEntity 이동에 따른)
+
+### 7. 테스트 수정
+- [x] 모든 테스트 패키지 및 import 수정
+
+### 8. 검증 및 커밋
+- [x] 컴파일 검증
+- [x] 테스트 검증
 - [ ] 커밋

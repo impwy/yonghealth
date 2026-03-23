@@ -1,8 +1,8 @@
 package com.yong.yonghealth.controller;
 
-import com.yong.yonghealth.domain.exercise.dto.ExerciseRequest;
-import com.yong.yonghealth.domain.exercise.dto.ExerciseResponse;
-import com.yong.yonghealth.service.exercise.ports.in.ExerciseUseCase;
+import com.yong.yonghealth.dto.ExerciseRequest;
+import com.yong.yonghealth.dto.ExerciseResponse;
+import com.yong.yonghealth.service.ports.in.ExerciseUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

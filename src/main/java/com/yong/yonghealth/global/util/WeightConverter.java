@@ -1,6 +1,6 @@
 package com.yong.yonghealth.global.util;
 
-import com.yong.yonghealth.domain.exerciseset.WeightUnit;
+import com.yong.yonghealth.domain.WeightUnit;
 
 public final class WeightConverter {
 

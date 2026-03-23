@@ -1,9 +1,9 @@
 package com.yong.yonghealth.controller;
 
-import com.yong.yonghealth.domain.exerciseset.WeightUnit;
-import com.yong.yonghealth.domain.exerciseset.dto.ExerciseSetRequest;
-import com.yong.yonghealth.domain.exerciseset.dto.ExerciseSetResponse;
-import com.yong.yonghealth.service.exerciseset.ports.in.ExerciseSetUseCase;
+import com.yong.yonghealth.domain.WeightUnit;
+import com.yong.yonghealth.dto.ExerciseSetRequest;
+import com.yong.yonghealth.dto.ExerciseSetResponse;
+import com.yong.yonghealth.service.ports.in.ExerciseSetUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
