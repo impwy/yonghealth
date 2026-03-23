@@ -3,7 +3,7 @@ package com.yong.yonghealth.domain.exercise;
 import com.yong.yonghealth.domain.exercise.dto.ExerciseRequest;
 import com.yong.yonghealth.domain.exercise.dto.ExerciseResponse;
 import com.yong.yonghealth.domain.workout.Workout;
-import com.yong.yonghealth.domain.workout.WorkoutService;
+import com.yong.yonghealth.domain.workout.service.ports.in.WorkoutUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
-    private final WorkoutService workoutService;
+    private final WorkoutUseCase workoutUseCase;
 
     @Transactional
     public ExerciseResponse create(Long workoutId, ExerciseRequest request) {
-        Workout workout = workoutService.getWorkout(workoutId);
+        Workout workout = workoutUseCase.getWorkout(workoutId);
 
         Exercise exercise = Exercise.builder()
                 .workout(workout)

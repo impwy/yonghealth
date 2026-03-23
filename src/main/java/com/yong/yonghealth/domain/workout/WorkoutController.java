@@ -3,6 +3,7 @@ package com.yong.yonghealth.domain.workout;
 import com.yong.yonghealth.domain.workout.dto.WorkoutDetailResponse;
 import com.yong.yonghealth.domain.workout.dto.WorkoutRequest;
 import com.yong.yonghealth.domain.workout.dto.WorkoutResponse;
+import com.yong.yonghealth.domain.workout.service.ports.in.WorkoutUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,36 +18,36 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WorkoutController {
 
-    private final WorkoutService workoutService;
+    private final WorkoutUseCase workoutUseCase;
 
     @PostMapping
     public ResponseEntity<WorkoutResponse> create(@Valid @RequestBody WorkoutRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(workoutService.create(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(workoutUseCase.create(request));
     }
 
     @GetMapping
     public ResponseEntity<List<WorkoutResponse>> findAll(
             @RequestParam(required = false) LocalDate date) {
         List<WorkoutResponse> responses = (date != null)
-                ? workoutService.findByDate(date)
-                : workoutService.findAll();
+                ? workoutUseCase.findByDate(date)
+                : workoutUseCase.findAll();
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<WorkoutDetailResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(workoutService.findById(id));
+        return ResponseEntity.ok(workoutUseCase.findById(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<WorkoutResponse> update(
             @PathVariable Long id, @Valid @RequestBody WorkoutRequest request) {
-        return ResponseEntity.ok(workoutService.update(id, request));
+        return ResponseEntity.ok(workoutUseCase.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        workoutService.delete(id);
+        workoutUseCase.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
