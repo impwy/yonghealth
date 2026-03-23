@@ -2,6 +2,7 @@
 
 ## 1. 기술 스택
 
+### Backend
 | 항목 | 기술 |
 |---|---|
 | Framework | Spring Boot 4.0.4 |
@@ -11,7 +12,18 @@
 | Database | MySQL |
 | Library | Lombok |
 
-## 2. 패키지 구조
+### Frontend
+| 항목 | 기술 |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| HTTP Client | fetch (built-in) |
+| Package Manager | npm |
+
+## 2. 프로젝트 구조
+
+### 2.1 백엔드 패키지 구조
 
 ```
 com.yong.yonghealth
@@ -52,6 +64,37 @@ com.yong.yonghealth
 └── YonghealthApplication.java
 ```
 
+### 2.2 프론트엔드 디렉토리 구조
+
+```
+frontend/
+├── app/
+│   ├── layout.tsx                 (루트 레이아웃 - 네비게이션)
+│   ├── page.tsx                   (메인 페이지 - 세션 목록)
+│   └── workouts/
+│       ├── new/
+│       │   └── page.tsx           (새 운동 기록)
+│       └── [id]/
+│           └── page.tsx           (세션 상세/편집)
+├── components/
+│   ├── WorkoutCard.tsx            (세션 카드 컴포넌트)
+│   ├── ExerciseAccordion.tsx      (종목 아코디언)
+│   ├── SetTable.tsx               (세트 테이블)
+│   ├── WorkoutForm.tsx            (세션 입력 폼)
+│   └── ui/
+│       ├── Navbar.tsx
+│       ├── Toast.tsx
+│       └── ConfirmDialog.tsx
+├── lib/
+│   └── api.ts                     (API 호출 함수)
+├── types/
+│   └── index.ts                   (타입 정의)
+├── next.config.ts
+├── tailwind.config.ts
+├── tsconfig.json
+└── package.json
+```
+
 ## 3. 구현 순서
 
 ### Phase 1: 기반 구조
@@ -79,6 +122,33 @@ com.yong.yonghealth
 ### Phase 5: 단위 변환 API
 1. `WeightConverter`에 변환 로직 구현
 2. 변환 API 엔드포인트 추가
+
+### Phase 6: 프론트엔드 프로젝트 초기화
+1. Next.js 프로젝트 생성 (`frontend/`)
+2. Tailwind CSS 설정
+3. 타입 정의 (`types/index.ts`)
+4. API 클라이언트 (`lib/api.ts`)
+5. 루트 레이아웃 및 네비게이션 바
+
+### Phase 7: 프론트엔드 - 메인 페이지
+1. 세션 목록 조회 페이지 (`app/page.tsx`)
+2. `WorkoutCard` 컴포넌트
+3. 날짜 필터링 기능
+
+### Phase 8: 프론트엔드 - 세션 생성 페이지
+1. 새 운동 기록 페이지 (`app/workouts/new/page.tsx`)
+2. `WorkoutForm` 컴포넌트
+3. 종목/세트 동적 추가 UI
+
+### Phase 9: 프론트엔드 - 세션 상세/편집 페이지
+1. 세션 상세 페이지 (`app/workouts/[id]/page.tsx`)
+2. `ExerciseAccordion` 컴포넌트
+3. `SetTable` 컴포넌트
+4. 인라인 수정/삭제 기능
+
+### Phase 10: 백엔드 CORS 설정 및 연동 테스트
+1. Spring Boot CORS 설정
+2. 프론트엔드 ↔ 백엔드 연동 확인
 
 ## 4. 엔티티 관계도
 
