@@ -17,7 +17,7 @@ export default function Toast({ message, type, onClose }: ToastProps) {
   const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
 
   return (
-    <div className={`fixed top-4 right-4 z-50 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg`}>
+    <div className={`fixed top-[max(1rem,env(safe-area-inset-top))] left-4 right-4 z-50 ${bgColor} text-white px-4 py-3 rounded-lg shadow-lg text-center text-sm`}>
       {message}
     </div>
   );

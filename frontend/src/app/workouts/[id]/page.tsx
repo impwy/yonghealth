@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { WorkoutDetail } from '@/types';
 import { workoutApi, exerciseApi } from '@/lib/api';
 import ExerciseAccordion from '@/components/ExerciseAccordion';
@@ -101,46 +102,51 @@ export default function WorkoutDetailPage() {
         />
       )}
 
+      {/* 뒤로가기 */}
+      <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-blue-600 mb-4 min-h-[44px]">
+        &larr; 목록으로
+      </Link>
+
       {/* 세션 정보 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-5 mb-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">운동 상세</h1>
+          <h1 className="text-xl md:text-2xl font-bold">운동 상세</h1>
           <div className="flex gap-2">
             {editing ? (
               <>
-                <button onClick={handleUpdate} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">저장</button>
-                <button onClick={() => setEditing(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">취소</button>
+                <button onClick={handleUpdate} className="px-3 py-2 md:px-4 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 active:bg-blue-800 min-h-[44px]">저장</button>
+                <button onClick={() => setEditing(false)} className="px-3 py-2 md:px-4 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 active:bg-gray-100 min-h-[44px]">취소</button>
               </>
             ) : (
               <>
-                <button onClick={() => setEditing(true)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">수정</button>
-                <button onClick={() => setShowDelete(true)} className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600">삭제</button>
+                <button onClick={() => setEditing(true)} className="px-3 py-2 md:px-4 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 active:bg-gray-100 min-h-[44px]">수정</button>
+                <button onClick={() => setShowDelete(true)} className="px-3 py-2 md:px-4 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 active:bg-red-700 min-h-[44px]">삭제</button>
               </>
             )}
           </div>
         </div>
 
         {editing ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-600 mb-1">날짜</label>
-              <input type="date" value={form.workoutDate} onChange={(e) => setForm({ ...form, workoutDate: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+              <input type="date" value={form.workoutDate} onChange={(e) => setForm({ ...form, workoutDate: e.target.value })} className="w-full border rounded-lg px-3 py-2.5" />
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">시작 시간</label>
-              <input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+              <input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} className="w-full border rounded-lg px-3 py-2.5" />
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">종료 시간</label>
-              <input type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+              <input type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} className="w-full border rounded-lg px-3 py-2.5" />
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">메모</label>
-              <input type="text" value={form.memo} onChange={(e) => setForm({ ...form, memo: e.target.value })} className="w-full border rounded-lg px-3 py-2" />
+              <input type="text" value={form.memo} onChange={(e) => setForm({ ...form, memo: e.target.value })} className="w-full border rounded-lg px-3 py-2.5" />
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-2 gap-3 text-sm">
             <div><span className="text-gray-500">날짜:</span> <span className="font-medium">{workout.workoutDate}</span></div>
             <div><span className="text-gray-500">시작:</span> <span className="font-medium">{workout.startTime}</span></div>
             <div><span className="text-gray-500">종료:</span> <span className="font-medium">{workout.endTime || '-'}</span></div>
@@ -168,11 +174,11 @@ export default function WorkoutDetailPage() {
           onChange={(e) => setNewExerciseName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAddExercise()}
           placeholder="새 운동 종목명 입력..."
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5"
         />
         <button
           onClick={handleAddExercise}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+          className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:bg-blue-800 min-h-[44px] whitespace-nowrap"
         >
           종목 추가
         </button>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { workoutApi, exerciseApi, exerciseSetApi } from '@/lib/api';
 import WorkoutForm from '@/components/WorkoutForm';
 import Toast from '@/components/ui/Toast';
@@ -43,6 +44,9 @@ export default function NewWorkoutPage() {
   return (
     <div>
       {error && <Toast message={error} type="error" onClose={() => setError(null)} />}
+      <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-blue-600 mb-4">
+        &larr; 목록으로
+      </Link>
       <h1 className="text-2xl font-bold mb-6">새 운동 기록</h1>
       <WorkoutForm onSubmit={handleSubmit} loading={loading} />
     </div>

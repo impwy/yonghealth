@@ -8,7 +8,8 @@ import Toast from '@/components/ui/Toast';
 
 export default function HomePage() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [dateFilter, setDateFilter] = useState('');
+  const today = new Date().toISOString().split('T')[0];
+  const [dateFilter, setDateFilter] = useState(today);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
