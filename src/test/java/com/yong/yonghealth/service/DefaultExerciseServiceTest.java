@@ -1,84 +1,75 @@
 package com.yong.yonghealth.service;
 
 import com.yong.yonghealth.domain.Exercise;
+import com.yong.yonghealth.domain.Workout;
 import com.yong.yonghealth.repository.ExerciseRepository;
+import com.yong.yonghealth.repository.WorkoutRepository;
 import com.yong.yonghealth.dto.ExerciseRequest;
 import com.yong.yonghealth.dto.ExerciseResponse;
-import com.yong.yonghealth.domain.Workout;
-import com.yong.yonghealth.service.ports.in.WorkoutUseCase;
+import com.yong.yonghealth.service.ports.in.ExerciseUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@Transactional
 class DefaultExerciseServiceTest {
 
-    @Mock
+    @Autowired
+    ExerciseUseCase exerciseUseCase;
+
+    @Autowired
     ExerciseRepository exerciseRepository;
 
-    @Mock
-    WorkoutUseCase workoutUseCase;
-
-    @InjectMocks
-    DefaultExerciseService exerciseService;
+    @Autowired
+    WorkoutRepository workoutRepository;
 
     @Test
     @DisplayName("운동 종목을 생성한다")
     void create() {
         // given
-        Workout workout = Workout.builder()
+        Workout workout = workoutRepository.save(Workout.builder()
                 .workoutDate(LocalDate.of(2026, 3, 24))
                 .startTime(LocalTime.of(9, 0))
-                .build();
-
-        given(workoutUseCase.getWorkout(1L)).willReturn(workout);
+                .build());
 
         ExerciseRequest request = ExerciseRequest.builder()
                 .name("벤치프레스")
                 .sortOrder(1)
                 .build();
 
-        Exercise saved = Exercise.builder()
-                .workout(workout)
-                .name("벤치프레스")
-                .sortOrder(1)
-                .build();
-
-        given(exerciseRepository.save(any(Exercise.class))).willReturn(saved);
-
         // when
-        ExerciseResponse response = exerciseService.create(1L, request);
+        ExerciseResponse response = exerciseUseCase.create(workout.getId(), request);
 
         // then
+        assertThat(response.getId()).isNotNull();
         assertThat(response.getName()).isEqualTo("벤치프레스");
         assertThat(response.getSortOrder()).isEqualTo(1);
+        assertThat(exerciseRepository.findAll()).hasSize(1);
     }
 
     @Test
     @DisplayName("운동 종목을 수정한다")
     void update() {
         // given
-        Exercise exercise = Exercise.builder()
-                .workout(Workout.builder().workoutDate(LocalDate.now()).startTime(LocalTime.of(9, 0)).build())
+        Workout workout = workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(9, 0))
+                .build());
+        Exercise exercise = exerciseRepository.save(Exercise.builder()
+                .workout(workout)
                 .name("벤치프레스")
                 .sortOrder(1)
-                .build();
-
-        given(exerciseRepository.findById(1L)).willReturn(Optional.of(exercise));
+                .build());
 
         ExerciseRequest request = ExerciseRequest.builder()
                 .name("스쿼트")
@@ -86,7 +77,7 @@ class DefaultExerciseServiceTest {
                 .build();
 
         // when
-        ExerciseResponse response = exerciseService.update(1L, request);
+        ExerciseResponse response = exerciseUseCase.update(exercise.getId(), request);
 
         // then
         assertThat(response.getName()).isEqualTo("스쿼트");
@@ -97,29 +88,28 @@ class DefaultExerciseServiceTest {
     @DisplayName("운동 종목을 삭제한다")
     void delete() {
         // given
-        Exercise exercise = Exercise.builder()
-                .workout(Workout.builder().workoutDate(LocalDate.now()).startTime(LocalTime.of(9, 0)).build())
+        Workout workout = workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(9, 0))
+                .build());
+        Exercise exercise = exerciseRepository.save(Exercise.builder()
+                .workout(workout)
                 .name("벤치프레스")
                 .sortOrder(1)
-                .build();
-
-        given(exerciseRepository.findById(1L)).willReturn(Optional.of(exercise));
+                .build());
 
         // when
-        exerciseService.delete(1L);
+        exerciseUseCase.delete(exercise.getId());
 
         // then
-        then(exerciseRepository).should().delete(exercise);
+        assertThat(exerciseRepository.findById(exercise.getId())).isEmpty();
     }
 
     @Test
     @DisplayName("존재하지 않는 종목 조회 시 예외가 발생한다")
     void getExercise_notFound() {
-        // given
-        given(exerciseRepository.findById(999L)).willReturn(Optional.empty());
-
         // when & then
-        assertThatThrownBy(() -> exerciseService.getExercise(999L))
+        assertThatThrownBy(() -> exerciseUseCase.getExercise(999L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("999");
     }
