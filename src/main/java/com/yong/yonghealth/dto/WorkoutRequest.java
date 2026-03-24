@@ -2,6 +2,7 @@ package com.yong.yonghealth.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,5 +28,6 @@ public class WorkoutRequest {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
+    @Size(max = 500, message = "메모는 500자 이하여야 합니다")
     private String memo;
 }

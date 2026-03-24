@@ -82,7 +82,7 @@ class ExerciseTest {
                 .name("벤치프레스")
                 .sortOrder(1)
                 .build();
-        workout.getExercises().add(exercise);
+        workout.addExercise(exercise);
         workoutRepository.flush();
 
         assertThat(exerciseRepository.findAll()).hasSize(1);
@@ -93,6 +93,35 @@ class ExerciseTest {
 
         // then
         assertThat(exerciseRepository.findAll()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("addSet으로 양방향 연관관계를 설정한다")
+    void addSet() {
+        // given
+        Workout workout = createWorkout();
+        Exercise exercise = exerciseRepository.save(Exercise.builder()
+                .workout(workout)
+                .name("벤치프레스")
+                .sortOrder(1)
+                .build());
+
+        ExerciseSet set = ExerciseSet.builder()
+                .exercise(exercise)
+                .setNumber(1)
+                .weight(60.0)
+                .weightUnit(WeightUnit.KG)
+                .reps(10)
+                .build();
+
+        // when
+        exercise.addSet(set);
+        exerciseRepository.flush();
+
+        // then
+        Exercise found = exerciseRepository.findById(exercise.getId()).orElseThrow();
+        assertThat(found.getSets()).hasSize(1);
+        assertThat(found.getSets().get(0).getWeight()).isEqualTo(60.0);
     }
 
     @Test

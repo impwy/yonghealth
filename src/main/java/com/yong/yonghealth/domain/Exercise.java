@@ -42,4 +42,12 @@ public class Exercise extends BaseTimeEntity {
         this.name = name;
         this.sortOrder = sortOrder;
     }
+
+    public void addSet(ExerciseSet set) {
+        sets.add(set);
+    }
+
+    public void removeSet(ExerciseSet set) {
+        sets.remove(set);
+    }
 }

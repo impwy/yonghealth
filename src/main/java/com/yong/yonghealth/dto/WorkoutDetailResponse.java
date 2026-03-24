@@ -37,10 +37,6 @@ public class WorkoutDetailResponse {
     private LocalDateTime updatedAt;
 
     public static WorkoutDetailResponse from(Workout workout) {
-        int totalSets = workout.getExercises().stream()
-                .mapToInt(e -> e.getSets().size())
-                .sum();
-
         List<ExerciseResponse> exerciseResponses = workout.getExercises().stream()
                 .map(ExerciseResponse::from)
                 .toList();
@@ -52,7 +48,7 @@ public class WorkoutDetailResponse {
                 .endTime(workout.getEndTime())
                 .memo(workout.getMemo())
                 .exerciseCount(workout.getExercises().size())
-                .totalSetCount(totalSets)
+                .totalSetCount(workout.getTotalSetCount())
                 .exercises(exerciseResponses)
                 .createdAt(workout.getCreatedAt())
                 .updatedAt(workout.getUpdatedAt())

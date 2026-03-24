@@ -47,4 +47,18 @@ public class Workout extends BaseTimeEntity {
         this.endTime = endTime;
         this.memo = memo;
     }
+
+    public void addExercise(Exercise exercise) {
+        exercises.add(exercise);
+    }
+
+    public void removeExercise(Exercise exercise) {
+        exercises.remove(exercise);
+    }
+
+    public int getTotalSetCount() {
+        return exercises.stream()
+                .mapToInt(e -> e.getSets().size())
+                .sum();
+    }
 }

@@ -96,4 +96,55 @@ class WorkoutTest {
         assertThat(saved.getCreatedAt()).isNotNull();
         assertThat(saved.getUpdatedAt()).isNotNull();
     }
+
+    @Test
+    @DisplayName("addExercise로 양방향 연관관계를 설정한다")
+    void addExercise() {
+        // given
+        Workout workout = workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(9, 0))
+                .build());
+
+        Exercise exercise = Exercise.builder()
+                .workout(workout)
+                .name("벤치프레스")
+                .sortOrder(1)
+                .build();
+
+        // when
+        workout.addExercise(exercise);
+        workoutRepository.flush();
+
+        // then
+        Workout found = workoutRepository.findById(workout.getId()).orElseThrow();
+        assertThat(found.getExercises()).hasSize(1);
+        assertThat(found.getExercises().get(0).getName()).isEqualTo("벤치프레스");
+    }
+
+    @Test
+    @DisplayName("getTotalSetCount로 전체 세트 수를 계산한다")
+    void getTotalSetCount() {
+        // given
+        Workout workout = workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(9, 0))
+                .build());
+
+        Exercise exercise = Exercise.builder()
+                .workout(workout)
+                .name("벤치프레스")
+                .sortOrder(1)
+                .build();
+        workout.addExercise(exercise);
+
+        exercise.addSet(ExerciseSet.builder()
+                .exercise(exercise).setNumber(1).weight(60.0).weightUnit(WeightUnit.KG).reps(10).build());
+        exercise.addSet(ExerciseSet.builder()
+                .exercise(exercise).setNumber(2).weight(70.0).weightUnit(WeightUnit.KG).reps(8).build());
+        workoutRepository.flush();
+
+        // then
+        assertThat(workout.getTotalSetCount()).isEqualTo(2);
+    }
 }

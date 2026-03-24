@@ -14,18 +14,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ExerciseSetRequest {
 
-    @NotNull(message = "세트 번호는 필수입니다")
     @Positive(message = "세트 번호는 양수여야 합니다")
     private Integer setNumber;
 
-    @NotNull(message = "중량은 필수입니다")
     @Positive(message = "중량은 양수여야 합니다")
     private Double weight;
 
     @NotNull(message = "중량 단위는 필수입니다")
     private WeightUnit weightUnit;
 
-    @NotNull(message = "반복 횟수는 필수입니다")
     @Positive(message = "반복 횟수는 양수여야 합니다")
     private Integer reps;
 }

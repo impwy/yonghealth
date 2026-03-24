@@ -122,7 +122,7 @@ class ExerciseSetTest {
                 .weightUnit(WeightUnit.KG)
                 .reps(10)
                 .build();
-        exercise.getSets().add(set);
+        exercise.addSet(set);
         exerciseRepository.flush();
 
         assertThat(exerciseSetRepository.findAll()).hasSize(1);
