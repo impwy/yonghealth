@@ -273,3 +273,143 @@ private Long exerciseCatalogId;  // FK 제약 없이 ID만 보관 (엔티티 참
 - QueryDSL vs Spring Data JPA 쿼리 선택 기준
 - 페이징 처리 (Pageable, Page<T>)
 - 소프트 삭제 (Soft Delete) vs 하드 삭제
+
+---
+
+## Claude Code 훅(Hook) 시스템
+
+### 개요
+Claude Code의 훅은 특정 이벤트 발생 시 자동으로 셸 커맨드를 실행하는 자동화 기능이다.
+AI가 파일을 수정하거나 툴을 사용할 때 사이드이펙트(포맷팅, 커밋, 로깅 등)를 자동 처리할 수 있다.
+
+### 설정 파일 위치
+
+| 파일 | 범위 | Git 관리 | 용도 |
+|------|------|---------|------|
+| `~/.claude/settings.json` | 전역 | N/A | 모든 프로젝트에 적용되는 개인 설정 |
+| `.claude/settings.json` | 프로젝트 | 커밋 O | 팀 공유 훅, 권한, 플러그인 |
+| `.claude/settings.local.json` | 프로젝트 | Gitignore | 개인 오버라이드 (민감 정보) |
+
+설정 로드 순서: user → project → local (나중이 앞을 오버라이드)
+
+### 훅 이벤트 종류
+
+| 이벤트 | 발생 시점 |
+|--------|---------|
+| `PreToolUse` | 툴 실행 직전 (차단 가능) |
+| `PostToolUse` | 툴 성공 후 |
+| `PostToolUseFailure` | 툴 실패 후 |
+| `SessionStart` | 세션 시작 시 |
+| `Stop` | Claude가 응답 완료 시 |
+| `UserPromptSubmit` | 사용자 메시지 제출 시 |
+| `PreCompact` | 컨텍스트 압축 직전 |
+
+### 훅 구조 (JSON)
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "셸 커맨드",
+            "timeout": 30,
+            "statusMessage": "스피너에 표시될 메시지"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+- `matcher`: 매칭할 툴 이름 (`Write`, `Edit`, `Bash` 등), `|`로 복수 지정
+- `type`: `command` (셸), `prompt` (LLM 판단), `agent` (에이전트 실행)
+- `async: true`: 백그라운드 실행 (Claude를 블로킹하지 않음)
+
+### 훅 stdin 입력 형식
+
+훅 커맨드는 stdin으로 JSON을 받는다:
+
+```json
+{
+  "session_id": "abc123",
+  "tool_name": "Edit",
+  "tool_input": { "file_path": "/path/to/file" },
+  "tool_response": { "success": true }
+}
+```
+
+`jq`로 파싱해서 사용:
+```bash
+jq -r '.tool_input.file_path // ""'
+```
+
+### 실제 적용 예시: insight.md 자동 커밋 훅
+
+이 프로젝트에 적용한 훅 — `insight.md` 수정 시 자동으로 git commit:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // \"\"' | grep -q 'insight\\.md$' && cd /path/to/project && git add insight.md && git commit -m '문서: insight.md 업데이트' 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**핵심 패턴:**
+1. `jq -r '...'` — stdin JSON에서 파일 경로 추출
+2. `grep -q 'insight\.md$'` — insight.md인지 확인 (다른 파일은 무시)
+3. `git add && git commit` — 조건 충족 시 커밋
+4. `2>/dev/null || true` — 실패해도 훅이 Claude를 블로킹하지 않도록
+
+### 훅 검증 방법 (pipe-test)
+
+훅 작성 후 실제 stdin을 시뮬레이션해서 동작 확인:
+
+```bash
+# Write/Edit 훅 테스트
+echo '{"tool_name":"Edit","tool_input":{"file_path":"/path/to/insight.md"}}' | <커맨드>
+
+# 다른 파일은 무시되는지 확인
+echo '{"tool_name":"Edit","tool_input":{"file_path":"/path/to/plan.md"}}' | <커맨드>
+```
+
+JSON 스키마 검증:
+```bash
+jq -e '.hooks.PostToolUse[] | select(.matcher == "Write|Edit") | .hooks[] | .command' .claude/settings.local.json
+# exit 0이면 정상
+```
+
+### 다른 활용 사례
+
+```bash
+# 파일 저장 시 자동 포맷팅
+"jq -r '.tool_input.file_path // \"\"' | { read -r f; prettier --write \"$f\"; } 2>/dev/null || true"
+
+# Bash 커맨드 감사 로그
+# PreToolUse + Bash matcher
+"jq -r '.tool_input.command' >> ~/.claude/bash-log.txt"
+
+# 코드 변경 시 자동 테스트 실행
+"jq -r '.tool_input.file_path // \"\"' | grep -E '\\.(java|ts)$' && ./gradlew test || true"
+```
+
+### 주의사항
+- `settings.local.json`은 `.gitignore`에 추가되어야 함 (개인 설정)
+- 훅 커맨드 실패 시 `|| true` 없으면 Claude가 블로킹될 수 있음
+- 쌍따옴표는 JSON 내에서 `\"` 로 이스케이프 필요
+- 훅 설정 후 세션 재시작 없이 현재 세션에 바로 적용됨
