@@ -22,25 +22,37 @@ public class Exercise extends BaseTimeEntity {
     @JoinColumn(name = "workout_id", nullable = false)
     private Workout workout;
 
+    private Long exerciseCatalogId;
+
     @Column(nullable = false)
-    private String name;
+    private String displayName;
+
+    private String customName;
 
     @Column(nullable = false)
     private Integer sortOrder;
+
+    private String note;
 
     @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExerciseSet> sets = new ArrayList<>();
 
     @Builder
-    public Exercise(Workout workout, String name, Integer sortOrder) {
+    public Exercise(Workout workout, Long exerciseCatalogId, String displayName, String customName, Integer sortOrder, String note) {
         this.workout = workout;
-        this.name = name;
+        this.exerciseCatalogId = exerciseCatalogId;
+        this.displayName = displayName;
+        this.customName = customName;
         this.sortOrder = sortOrder;
+        this.note = note;
     }
 
-    public void update(String name, Integer sortOrder) {
-        this.name = name;
+    public void update(Long exerciseCatalogId, String displayName, String customName, Integer sortOrder, String note) {
+        this.exerciseCatalogId = exerciseCatalogId;
+        this.displayName = displayName;
+        this.customName = customName;
         this.sortOrder = sortOrder;
+        this.note = note;
     }
 
     public void addSet(ExerciseSet set) {

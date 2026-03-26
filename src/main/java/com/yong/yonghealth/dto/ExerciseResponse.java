@@ -11,15 +11,21 @@ import java.util.List;
 public class ExerciseResponse {
 
     private Long id;
-    private String name;
+    private Long exerciseCatalogId;
+    private String displayName;
+    private String customName;
     private Integer sortOrder;
+    private String note;
     private List<ExerciseSetResponse> sets;
 
     public static ExerciseResponse from(Exercise exercise) {
         return ExerciseResponse.builder()
                 .id(exercise.getId())
-                .name(exercise.getName())
+                .exerciseCatalogId(exercise.getExerciseCatalogId())
+                .displayName(exercise.getDisplayName())
+                .customName(exercise.getCustomName())
                 .sortOrder(exercise.getSortOrder())
+                .note(exercise.getNote())
                 .sets(exercise.getSets().stream()
                         .map(ExerciseSetResponse::from)
                         .toList())

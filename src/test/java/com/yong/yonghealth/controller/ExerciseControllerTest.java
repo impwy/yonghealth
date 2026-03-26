@@ -37,13 +37,13 @@ class ExerciseControllerTest {
     @DisplayName("POST /api/workouts/{workoutId}/exercises - 종목 생성")
     void create() throws Exception {
         ExerciseRequest request = ExerciseRequest.builder()
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build();
 
         ExerciseResponse response = ExerciseResponse.builder()
                 .id(1L)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .sets(List.of())
                 .build();
@@ -54,20 +54,53 @@ class ExerciseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("벤치프레스"));
+                .andExpect(jsonPath("$.displayName").value("벤치프레스"));
+    }
+
+    @Test
+    @DisplayName("POST - 카탈로그 ID와 커스텀명 포함 생성")
+    void createWithCatalog() throws Exception {
+        ExerciseRequest request = ExerciseRequest.builder()
+                .exerciseCatalogId(1L)
+                .displayName("벤치프레스")
+                .customName("클로즈그립 벤치프레스")
+                .sortOrder(1)
+                .note("삼두 집중")
+                .build();
+
+        ExerciseResponse response = ExerciseResponse.builder()
+                .id(1L)
+                .exerciseCatalogId(1L)
+                .displayName("벤치프레스")
+                .customName("클로즈그립 벤치프레스")
+                .sortOrder(1)
+                .note("삼두 집중")
+                .sets(List.of())
+                .build();
+
+        given(exerciseUseCase.create(eq(1L), any(ExerciseRequest.class))).willReturn(response);
+
+        mockMvc.perform(post("/api/workouts/1/exercises")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.exerciseCatalogId").value(1))
+                .andExpect(jsonPath("$.displayName").value("벤치프레스"))
+                .andExpect(jsonPath("$.customName").value("클로즈그립 벤치프레스"))
+                .andExpect(jsonPath("$.note").value("삼두 집중"));
     }
 
     @Test
     @DisplayName("PUT /api/exercises/{id} - 종목 수정")
     void update() throws Exception {
         ExerciseRequest request = ExerciseRequest.builder()
-                .name("스쿼트")
+                .displayName("스쿼트")
                 .sortOrder(2)
                 .build();
 
         ExerciseResponse response = ExerciseResponse.builder()
                 .id(1L)
-                .name("스쿼트")
+                .displayName("스쿼트")
                 .sortOrder(2)
                 .sets(List.of())
                 .build();
@@ -78,7 +111,7 @@ class ExerciseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("스쿼트"));
+                .andExpect(jsonPath("$.displayName").value("스쿼트"));
     }
 
     @Test

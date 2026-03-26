@@ -27,8 +27,11 @@ public class DefaultExerciseService implements ExerciseUseCase {
 
         Exercise exercise = Exercise.builder()
                 .workout(workout)
-                .name(request.getName())
+                .exerciseCatalogId(request.getExerciseCatalogId())
+                .displayName(request.getDisplayName())
+                .customName(request.getCustomName())
                 .sortOrder(request.getSortOrder())
+                .note(request.getNote())
                 .build();
 
         return ExerciseResponse.from(exerciseRepository.save(exercise));
@@ -38,7 +41,13 @@ public class DefaultExerciseService implements ExerciseUseCase {
     @Transactional
     public ExerciseResponse update(Long id, ExerciseRequest request) {
         Exercise exercise = getExercise(id);
-        exercise.update(request.getName(), request.getSortOrder());
+        exercise.update(
+                request.getExerciseCatalogId(),
+                request.getDisplayName(),
+                request.getCustomName(),
+                request.getSortOrder(),
+                request.getNote()
+        );
         return ExerciseResponse.from(exercise);
     }
 

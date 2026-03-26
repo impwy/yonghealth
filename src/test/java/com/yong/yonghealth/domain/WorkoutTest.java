@@ -108,7 +108,7 @@ class WorkoutTest {
 
         Exercise exercise = Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build();
 
@@ -119,7 +119,7 @@ class WorkoutTest {
         // then
         Workout found = workoutRepository.findById(workout.getId()).orElseThrow();
         assertThat(found.getExercises()).hasSize(1);
-        assertThat(found.getExercises().get(0).getName()).isEqualTo("벤치프레스");
+        assertThat(found.getExercises().get(0).getDisplayName()).isEqualTo("벤치프레스");
     }
 
     @Test
@@ -133,7 +133,7 @@ class WorkoutTest {
 
         Exercise exercise = Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build();
         workout.addExercise(exercise);

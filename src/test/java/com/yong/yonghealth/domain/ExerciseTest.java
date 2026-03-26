@@ -39,16 +39,42 @@ class ExerciseTest {
         // when
         Exercise saved = exerciseRepository.save(Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build());
 
         // then
         assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getName()).isEqualTo("벤치프레스");
+        assertThat(saved.getDisplayName()).isEqualTo("벤치프레스");
         assertThat(saved.getSortOrder()).isEqualTo(1);
         assertThat(saved.getWorkout().getId()).isEqualTo(workout.getId());
         assertThat(saved.getSets()).isEmpty();
+        assertThat(saved.getExerciseCatalogId()).isNull();
+        assertThat(saved.getCustomName()).isNull();
+        assertThat(saved.getNote()).isNull();
+    }
+
+    @Test
+    @DisplayName("exerciseCatalogId, customName, note를 포함하여 생성한다")
+    void createWithAllFields() {
+        // given
+        Workout workout = createWorkout();
+
+        // when
+        Exercise saved = exerciseRepository.save(Exercise.builder()
+                .workout(workout)
+                .exerciseCatalogId(1L)
+                .displayName("벤치프레스")
+                .customName("내로우 벤치프레스")
+                .sortOrder(1)
+                .note("가슴 하부 집중")
+                .build());
+
+        // then
+        assertThat(saved.getExerciseCatalogId()).isEqualTo(1L);
+        assertThat(saved.getDisplayName()).isEqualTo("벤치프레스");
+        assertThat(saved.getCustomName()).isEqualTo("내로우 벤치프레스");
+        assertThat(saved.getNote()).isEqualTo("가슴 하부 집중");
     }
 
     @Test
@@ -58,18 +84,21 @@ class ExerciseTest {
         Workout workout = createWorkout();
         Exercise exercise = exerciseRepository.save(Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build());
 
         // when
-        exercise.update("스쿼트", 2);
+        exercise.update(2L, "스쿼트", "프론트 스쿼트", 2, "하체 앞쪽");
 
         Exercise found = exerciseRepository.findById(exercise.getId()).orElseThrow();
 
         // then
-        assertThat(found.getName()).isEqualTo("스쿼트");
+        assertThat(found.getExerciseCatalogId()).isEqualTo(2L);
+        assertThat(found.getDisplayName()).isEqualTo("스쿼트");
+        assertThat(found.getCustomName()).isEqualTo("프론트 스쿼트");
         assertThat(found.getSortOrder()).isEqualTo(2);
+        assertThat(found.getNote()).isEqualTo("하체 앞쪽");
     }
 
     @Test
@@ -79,7 +108,7 @@ class ExerciseTest {
         Workout workout = createWorkout();
         Exercise exercise = Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build();
         workout.addExercise(exercise);
@@ -102,7 +131,7 @@ class ExerciseTest {
         Workout workout = createWorkout();
         Exercise exercise = exerciseRepository.save(Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build());
 
@@ -133,7 +162,7 @@ class ExerciseTest {
         // when
         Exercise saved = exerciseRepository.save(Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build());
 

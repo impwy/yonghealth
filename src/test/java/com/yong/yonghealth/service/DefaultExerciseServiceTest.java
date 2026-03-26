@@ -33,17 +33,21 @@ class DefaultExerciseServiceTest {
     @Autowired
     WorkoutRepository workoutRepository;
 
+    private Workout createWorkout() {
+        return workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(9, 0))
+                .build());
+    }
+
     @Test
     @DisplayName("운동 종목을 생성한다")
     void create() {
         // given
-        Workout workout = workoutRepository.save(Workout.builder()
-                .workoutDate(LocalDate.of(2026, 3, 24))
-                .startTime(LocalTime.of(9, 0))
-                .build());
+        Workout workout = createWorkout();
 
         ExerciseRequest request = ExerciseRequest.builder()
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build();
 
@@ -52,49 +56,76 @@ class DefaultExerciseServiceTest {
 
         // then
         assertThat(response.getId()).isNotNull();
-        assertThat(response.getName()).isEqualTo("벤치프레스");
+        assertThat(response.getDisplayName()).isEqualTo("벤치프레스");
         assertThat(response.getSortOrder()).isEqualTo(1);
+        assertThat(response.getExerciseCatalogId()).isNull();
+        assertThat(response.getCustomName()).isNull();
+        assertThat(response.getNote()).isNull();
         assertThat(exerciseRepository.findAll()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("카탈로그 ID와 커스텀명으로 종목을 생성한다")
+    void createWithCatalog() {
+        // given
+        Workout workout = createWorkout();
+
+        ExerciseRequest request = ExerciseRequest.builder()
+                .exerciseCatalogId(1L)
+                .displayName("벤치프레스")
+                .customName("클로즈그립 벤치프레스")
+                .sortOrder(1)
+                .note("삼두 집중")
+                .build();
+
+        // when
+        ExerciseResponse response = exerciseUseCase.create(workout.getId(), request);
+
+        // then
+        assertThat(response.getExerciseCatalogId()).isEqualTo(1L);
+        assertThat(response.getDisplayName()).isEqualTo("벤치프레스");
+        assertThat(response.getCustomName()).isEqualTo("클로즈그립 벤치프레스");
+        assertThat(response.getNote()).isEqualTo("삼두 집중");
     }
 
     @Test
     @DisplayName("운동 종목을 수정한다")
     void update() {
         // given
-        Workout workout = workoutRepository.save(Workout.builder()
-                .workoutDate(LocalDate.of(2026, 3, 24))
-                .startTime(LocalTime.of(9, 0))
-                .build());
+        Workout workout = createWorkout();
         Exercise exercise = exerciseRepository.save(Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build());
 
         ExerciseRequest request = ExerciseRequest.builder()
-                .name("스쿼트")
+                .exerciseCatalogId(2L)
+                .displayName("스쿼트")
+                .customName("프론트 스쿼트")
                 .sortOrder(2)
+                .note("하체 앞쪽")
                 .build();
 
         // when
         ExerciseResponse response = exerciseUseCase.update(exercise.getId(), request);
 
         // then
-        assertThat(response.getName()).isEqualTo("스쿼트");
+        assertThat(response.getDisplayName()).isEqualTo("스쿼트");
+        assertThat(response.getCustomName()).isEqualTo("프론트 스쿼트");
         assertThat(response.getSortOrder()).isEqualTo(2);
+        assertThat(response.getExerciseCatalogId()).isEqualTo(2L);
+        assertThat(response.getNote()).isEqualTo("하체 앞쪽");
     }
 
     @Test
     @DisplayName("운동 종목을 삭제한다")
     void delete() {
         // given
-        Workout workout = workoutRepository.save(Workout.builder()
-                .workoutDate(LocalDate.of(2026, 3, 24))
-                .startTime(LocalTime.of(9, 0))
-                .build());
+        Workout workout = createWorkout();
         Exercise exercise = exerciseRepository.save(Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build());
 

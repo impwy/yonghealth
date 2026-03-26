@@ -34,7 +34,7 @@ class ExerciseSetTest {
                 .build());
         return exerciseRepository.save(Exercise.builder()
                 .workout(workout)
-                .name("벤치프레스")
+                .displayName("벤치프레스")
                 .sortOrder(1)
                 .build());
     }
