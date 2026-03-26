@@ -1,181 +1,128 @@
-# YongHealth - 구현 계획서
+# YongHealth v2 - 구현 계획서
 
-## 1. 기술 스택
+## 1. 기술 스택 (유지)
 
-### Backend
 | 항목 | 기술 |
 |---|---|
-| Framework | Spring Boot 4.0.4 |
-| Language | Java 25 |
-| Build | Gradle (Kotlin DSL) |
-| ORM | Spring Data JPA / Hibernate |
-| Database | MySQL |
-| Library | Lombok |
+| Backend | Spring Boot 4.0.4, Java 25, Gradle (Kotlin DSL), JPA, Lombok |
+| Frontend | Next.js 15 (App Router), TypeScript, Tailwind CSS |
+| DB (개발) | MySQL / H2 (테스트) |
+| DB (운영) | PostgreSQL (Neon) |
+| 배포 | Render (백엔드) + Vercel (프론트엔드) |
 
-### Frontend
-| 항목 | 기술 |
-|---|---|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS |
-| HTTP Client | fetch (built-in) |
-| Package Manager | npm |
+---
 
-## 2. 프로젝트 구조
-
-### 2.1 백엔드 패키지 구조
+## 2. 패키지 구조 (기존 계층형 플랫 유지)
 
 ```
-com.yong.yonghealth
-├── domain
-│   ├── workout
-│   │   ├── Workout.java              (Entity)
-│   │   ├── WorkoutRepository.java    (Repository)
-│   │   ├── WorkoutService.java       (Service)
-│   │   ├── WorkoutController.java    (Controller)
-│   │   └── dto
-│   │       ├── WorkoutRequest.java
-│   │       └── WorkoutResponse.java
-│   ├── exercise
-│   │   ├── Exercise.java
-│   │   ├── ExerciseRepository.java
-│   │   ├── ExerciseService.java
-│   │   ├── ExerciseController.java
-│   │   └── dto
-│   │       ├── ExerciseRequest.java
-│   │       └── ExerciseResponse.java
-│   └── exerciseset
-│       ├── ExerciseSet.java
-│       ├── ExerciseSetRepository.java
-│       ├── ExerciseSetService.java
-│       ├── ExerciseSetController.java
-│       ├── WeightUnit.java           (Enum)
-│       └── dto
-│           ├── ExerciseSetRequest.java
-│           └── ExerciseSetResponse.java
-├── global
-│   ├── common
-│   │   └── BaseTimeEntity.java       (공통 생성/수정 일시)
-│   ├── error
-│   │   ├── ErrorResponse.java
-│   │   └── GlobalExceptionHandler.java
-│   └── util
-│       └── WeightConverter.java      (KG ↔ LB 변환)
-└── YonghealthApplication.java
+com.yong.yonghealth/
+├── domain/          (Workout, Exercise, ExerciseSet, WeightUnit, BaseTimeEntity)
+│                    + ExerciseCatalog, ExerciseCatalogAlias, BodyPart, Equipment, MovementType [신규]
+├── dto/             (모든 Request/Response DTO)
+│                    + WorkoutCalendarSummaryResponse, WorkoutDateSummaryResponse [신규]
+│                    + ExerciseCatalogResponse, ExerciseCatalogSearchResponse [신규]
+├── repository/      (모든 Repository)
+│                    + ExerciseCatalogRepository, ExerciseCatalogAliasRepository [신규]
+├── service/         (모든 DefaultXxxService)
+│                    + DefaultExerciseCatalogService [신규]
+│   └── ports/in/    (모든 UseCase 인터페이스)
+│                    + ExerciseCatalogUseCase [신규]
+├── controller/      (모든 Controller)
+│                    + ExerciseCatalogController [신규]
+└── global/          (config/, error/, util/)
 ```
 
-### 2.2 프론트엔드 디렉토리 구조
+---
+
+## 3. 프론트엔드 구조 (변경)
 
 ```
-frontend/
+frontend/src/
 ├── app/
-│   ├── layout.tsx                 (루트 레이아웃 - 네비게이션)
-│   ├── page.tsx                   (메인 페이지 - 세션 목록)
+│   ├── layout.tsx                    (RootLayout + 하단 네비)
+│   ├── page.tsx                      (달력 대시보드) [변경]
 │   └── workouts/
-│       ├── new/
-│       │   └── page.tsx           (새 운동 기록)
-│       └── [id]/
-│           └── page.tsx           (세션 상세/편집)
+│       ├── new/page.tsx              (새 운동 기록) [변경: ExercisePicker 연동]
+│       ├── date/[date]/page.tsx      (날짜별 운동 목록) [신규]
+│       └── [id]/page.tsx             (세션 상세/편집) [변경: ExercisePicker 연동]
 ├── components/
-│   ├── WorkoutCard.tsx            (세션 카드 컴포넌트)
-│   ├── ExerciseAccordion.tsx      (종목 아코디언)
-│   ├── SetTable.tsx               (세트 테이블)
-│   ├── WorkoutForm.tsx            (세션 입력 폼)
+│   ├── WorkoutCalendar.tsx           [신규]
+│   ├── WorkoutDaySheet.tsx           [신규]
+│   ├── WorkoutCard.tsx               (유지)
+│   ├── ExerciseAccordion.tsx         [변경]
+│   ├── ExercisePicker.tsx            [신규]
+│   ├── SetTable.tsx                  (유지)
+│   ├── WorkoutForm.tsx               [변경]
 │   └── ui/
-│       ├── Navbar.tsx
-│       ├── Toast.tsx
-│       └── ConfirmDialog.tsx
-├── lib/
-│   └── api.ts                     (API 호출 함수)
-├── types/
-│   └── index.ts                   (타입 정의)
-├── next.config.ts
-├── tailwind.config.ts
-├── tsconfig.json
-└── package.json
+│       ├── Navbar.tsx                [변경: 단순화]
+│       ├── BottomNav.tsx             [신규]
+│       ├── Toast.tsx                 (유지)
+│       └── ConfirmDialog.tsx         (유지)
+├── lib/api.ts                        [변경: 신규 API 추가]
+├── types/index.ts                    [변경: 신규 타입 추가]
+└── ...
 ```
 
-## 3. 구현 순서
+---
 
-### Phase 1: 기반 구조
-1. `BaseTimeEntity` 생성 (createdAt, updatedAt 자동 관리)
-2. `ErrorResponse` 및 `GlobalExceptionHandler` 생성
-3. `WeightUnit` Enum 및 `WeightConverter` 유틸리티 생성
+## 4. 구현 Phase
 
-### Phase 2: Workout (운동 세션)
-1. `Workout` Entity 생성
-2. `WorkoutRepository` 생성
-3. `WorkoutRequest` / `WorkoutResponse` DTO 생성
-4. `WorkoutService` 비즈니스 로직 구현
-5. `WorkoutController` REST API 구현
+### Phase 1: Exercise 엔티티 변경
+1. Exercise 엔티티에 exerciseCatalog(ManyToOne, nullable), displayName, customName, note 추가
+2. 기존 name 필드를 displayName으로 대체
+3. ExerciseRequest, ExerciseResponse DTO 수정
+4. DefaultExerciseService, ExerciseController 수정
+5. 기존 테스트 수정 및 검증
+6. `./gradlew test` 통과 확인
 
-### Phase 3: Exercise (운동 종목)
-1. `Exercise` Entity 생성 (Workout과 ManyToOne 관계)
-2. `ExerciseRepository` 생성
-3. DTO, Service, Controller 구현
+### Phase 2: ExerciseCatalog 도메인
+1. ExerciseCatalog, ExerciseCatalogAlias 엔티티 생성
+2. BodyPart, Equipment, MovementType enum 생성
+3. Repository, Service, Controller 구현
+4. 검색 API (이름 + 별칭 LIKE 검색)
+5. 카테고리별 조회 API
+6. 초기 seed 데이터 (data.sql)
+7. 테스트 작성 및 검증
 
-### Phase 4: ExerciseSet (세트)
-1. `ExerciseSet` Entity 생성 (Exercise와 ManyToOne 관계)
-2. `ExerciseSetRepository` 생성
-3. DTO, Service, Controller 구현
+### Phase 3: 달력 조회 API
+1. 월간 달력 요약 API: `GET /api/workouts/calendar?year=&month=`
+2. 날짜별 운동 목록 API: `GET /api/workouts/date/{date}`
+3. WorkoutCalendarSummaryResponse, WorkoutDateSummaryResponse DTO
+4. workoutDate 인덱스 최적화
+5. 테스트 작성 및 검증
 
-### Phase 5: 단위 변환 API
-1. `WeightConverter`에 변환 로직 구현
-2. 변환 API 엔드포인트 추가
+### Phase 4: 프론트엔드 - 타입/API 업데이트
+1. types/index.ts에 ExerciseCatalog, Calendar 관련 타입 추가
+2. Exercise 타입 변경 (displayName, customName, catalogId)
+3. api.ts에 calendar, date, exerciseCatalog API 추가
 
-### Phase 6: 프론트엔드 프로젝트 초기화
-1. Next.js 프로젝트 생성 (`frontend/`)
-2. Tailwind CSS 설정
-3. 타입 정의 (`types/index.ts`)
-4. API 클라이언트 (`lib/api.ts`)
-5. 루트 레이아웃 및 네비게이션 바
+### Phase 5: 프론트엔드 - 달력 홈 화면
+1. WorkoutCalendar 컴포넌트 구현 (월간 달력, 날짜별 dot 표시)
+2. WorkoutDaySheet 컴포넌트 구현 (모바일 하단 시트)
+3. app/page.tsx를 달력 대시보드로 교체
+4. BottomNav 컴포넌트 구현
+5. Navbar 단순화
 
-### Phase 7: 프론트엔드 - 메인 페이지
-1. 세션 목록 조회 페이지 (`app/page.tsx`)
-2. `WorkoutCard` 컴포넌트
-3. 날짜 필터링 기능
+### Phase 6: 프론트엔드 - 날짜별 운동 목록
+1. app/workouts/date/[date]/page.tsx 구현
+2. 날짜별 세션 목록 조회 및 표시
+3. 세션 상세 이동 연결
+4. "운동 기록 추가" CTA
 
-### Phase 8: 프론트엔드 - 세션 생성 페이지
-1. 새 운동 기록 페이지 (`app/workouts/new/page.tsx`)
-2. `WorkoutForm` 컴포넌트
-3. 종목/세트 동적 추가 UI
+### Phase 7: 프론트엔드 - 운동 선택 UI
+1. ExercisePicker 컴포넌트 구현 (검색, 카테고리 필터)
+2. WorkoutForm에 ExercisePicker 연동
+3. 세션 상세 페이지에 ExercisePicker 연동
+4. 직접 입력 fallback
 
-### Phase 9: 프론트엔드 - 세션 상세/편집 페이지
-1. 세션 상세 페이지 (`app/workouts/[id]/page.tsx`)
-2. `ExerciseAccordion` 컴포넌트
-3. `SetTable` 컴포넌트
-4. 인라인 수정/삭제 기능
+### Phase 8: 모바일 UI 최적화
+1. 전체 화면 모바일 레이아웃 재점검
+2. 세트 입력 카드형/세로 스택형 전환
+3. sticky 액션 버튼 적용
+4. 터치 영역 및 네비게이션 최적화
 
-### Phase 10: 백엔드 CORS 설정 및 연동 테스트
-1. Spring Boot CORS 설정
-2. 프론트엔드 ↔ 백엔드 연동 확인
-
-## 4. 엔티티 관계도
-
-```
-Workout (1) ──── (N) Exercise (1) ──── (N) ExerciseSet
-  │                    │                      │
-  ├─ workoutDate       ├─ name                ├─ setNumber
-  ├─ startTime         └─ sortOrder           ├─ weight
-  ├─ endTime                                  ├─ weightUnit (KG/LB)
-  └─ memo                                     └─ reps
-```
-
-## 5. 주요 설계 결정
-
-### 5.1 도메인별 패키지 구조
-- 계층형(layer) 대신 **도메인형(domain)** 패키지 구조 채택
-- 각 도메인이 Entity, Repository, Service, Controller, DTO를 독립적으로 소유
-- 도메인 간 결합도를 낮추고 응집도를 높임
-
-### 5.2 세트별 중량 단위
-- 중량 단위를 세트 레벨에서 관리 (세트마다 다른 단위 가능)
-- 실제 운동 시 KG/LB를 혼용하는 경우를 지원
-
-### 5.3 Cascade 삭제
-- Workout 삭제 → Exercise 모두 삭제 → ExerciseSet 모두 삭제
-- `CascadeType.ALL` + `orphanRemoval = true` 적용
-
-### 5.4 BaseTimeEntity
-- `@MappedSuperclass` + `@EntityListeners(AuditingEntityListener.class)`
-- 모든 엔티티에 createdAt, updatedAt 자동 관리
+### Phase 9: 성능/배포 개선
+1. Health check 엔드포인트 설정
+2. Spring Boot startup 최적화
+3. 프론트엔드 콜드스타트 로딩 UI
+4. 빌드/배포 검증

@@ -1,94 +1,92 @@
-# 패키지 구조 리팩토링 - 계층형 패키지 구조
+# YongHealth v2 - 변경 사항 정리
 
-## 목표
-도메인별 하위 패키지를 없애고, 계층별 플랫 패키지 구조로 변경한다.
+## 1. 패키지 구조: 현재 계층형 플랫 구조 유지
 
-## 변경 전 → 변경 후
-```
-변경 전:                              변경 후:
-domain/workout/Workout.java       →  domain/Workout.java
-domain/exercise/Exercise.java     →  domain/Exercise.java
-domain/exerciseset/ExerciseSet.java → domain/ExerciseSet.java
-domain/exerciseset/WeightUnit.java → domain/WeightUnit.java
-domain/workout/dto/*.java         →  dto/WorkoutRequest.java 등
-domain/workout/WorkoutRepository  →  repository/WorkoutRepository.java
-service/workout/Default*          →  service/DefaultWorkoutService.java
-service/workout/ports/in/*        →  service/ports/in/WorkoutUseCase.java
-controller/ (유지)                →  controller/ (유지)
-```
+기존 구조를 유지하며, 신규 클래스만 해당 계층에 추가한다.
 
-## 체크리스트
-
-### 1. domain 패키지 (Entity만)
-- [x] Workout, Exercise, ExerciseSet, WeightUnit → `domain/` 플랫으로 이동
-- [x] BaseTimeEntity는 `domain/`으로 이동
-
-### 2. dto 패키지
-- [x] 모든 DTO → `dto/` 플랫으로 이동
-
-### 3. repository 패키지
-- [x] 모든 Repository → `repository/` 플랫으로 이동
-
-### 4. service 패키지
-- [x] DefaultWorkoutService, DefaultExerciseService, DefaultExerciseSetService → `service/` 플랫
-- [x] WorkoutUseCase, ExerciseUseCase, ExerciseSetUseCase → `service/ports/in/` 플랫
-
-### 5. controller 패키지 (이미 플랫)
-- [x] import 수정만
-
-### 6. global 패키지
-- [x] import 수정 (BaseTimeEntity 이동에 따른)
-
-### 7. 테스트 수정
-- [x] 모든 테스트 패키지 및 import 수정
-
-### 8. 검증 및 커밋
-- [x] 컴파일 검증
-- [x] 테스트 검증
-- [x] 커밋
+### 신규 추가 파일
+- `domain/`: ExerciseCatalog, ExerciseCatalogAlias, BodyPart(enum), Equipment(enum), MovementType(enum)
+- `dto/`: ExerciseCatalogResponse, ExerciseCatalogSearchResponse, WorkoutCalendarSummaryResponse, WorkoutDateSummaryResponse
+- `repository/`: ExerciseCatalogRepository, ExerciseCatalogAliasRepository
+- `service/`: DefaultExerciseCatalogService
+- `service/ports/in/`: ExerciseCatalogUseCase
+- `controller/`: ExerciseCatalogController
 
 ---
 
-# 프론트엔드 UX 수정
+## 2. Exercise 엔티티 변경
 
-## 수정 내용
+### 현재
+- `name` (String) - 운동명 직접 입력
 
-### 1. 메인 페이지 날짜 필터 기본값 → 오늘
-- [x] `app/page.tsx`: `dateFilter` 초기값을 `''` → `new Date().toISOString().split('T')[0]`로 변경
-- [x] 빌드 검증 통과
+### 변경 후
+- `exerciseCatalog` (ManyToOne, nullable) - 표준 운동 참조
+- `displayName` (String) - 기록 당시 이름 스냅샷
+- `customName` (String, nullable) - 사용자 정의명
+- `note` (String, nullable) - 메모
+- `sortOrder` (Integer) - 유지
 
-### 2. 상세/생성 페이지에 "← 목록으로" 링크 추가
-- [x] `app/workouts/[id]/page.tsx`: 상단에 `Link href="/"` 추가
-- [x] `app/workouts/new/page.tsx`: 상단에 `Link href="/"` 추가
-- [x] 빌드 검증 통과
+### 마이그레이션 전략
+- 기존 `name` 값 → `displayName`으로 매핑
+- `exerciseCatalogId` = null (기존 데이터는 카탈로그 미연결)
+- `name` 필드 제거
 
 ---
 
-# 모바일 최적화 (iPhone)
+## 3. 신규 도메인: ExerciseCatalog
 
-## 수정 내용
+### ExerciseCatalog
+- id, name, category(enum), equipment(enum), movementType(enum), active(boolean)
 
-### 1. Viewport & Safe Area 설정
-- [x] `app/layout.tsx`: Viewport export 추가 (device-width, maximumScale:1, viewportFit:"cover", apple web app 설정)
-- [x] `app/globals.css`: env(safe-area-inset-*) 패딩, tap-highlight 제거, iOS input 16px 줌 방지
+### ExerciseCatalogAlias
+- id, exerciseCatalog(ManyToOne), alias(String)
 
-### 2. Navbar 반응형
-- [x] `components/ui/Navbar.tsx`: text-lg md:text-xl, px-3 md:px-4, min-h-[44px] 터치 타겟, active: 상태
+### Seed 데이터
+- 주요 운동 50~70종 초기 데이터 필요
 
-### 3. 운동 상세 페이지 반응형
-- [x] `app/workouts/[id]/page.tsx`: grid-cols-1 md:grid-cols-2, min-h-[44px] 터치 타겟, active: 상태, 반응형 패딩
+---
 
-### 4. 운동 기록 폼 반응형
-- [x] `components/WorkoutForm.tsx`: grid-cols-1 md:grid-cols-2, overflow-x-auto 테이블, min-h-[44px]/min-h-[52px] 터치 타겟
+## 4. 신규/변경 API
 
-### 5. 세트 테이블 반응형
-- [x] `components/SetTable.tsx`: overflow-x-auto, min-w-[320px] 테이블, min-h-[44px] 터치 타겟, flex-wrap 추가 폼
+### 신규
+- `GET /api/workouts/calendar?year=&month=` - 월간 달력 요약
+- `GET /api/workouts/date/{date}` - 날짜별 운동 목록
+- `GET /api/exercise-catalog` - 표준 운동 목록 전체/카테고리별
+- `GET /api/exercise-catalog/search?query=` - 운동명 검색
 
-### 6. 종목 아코디언 반응형
-- [x] `components/ExerciseAccordion.tsx`: min-h-[48px] 헤더, min-h-[44px] 버튼 터치 타겟, active: 상태, truncate 긴 텍스트 대응
+### 변경
+- `POST /api/workouts/{workoutId}/exercises` - ExerciseRequest에 catalogId, displayName, customName 추가
+- `PUT /api/exercises/{id}` - 동일
 
-### 7. Toast 안전 영역 대응
-- [x] `components/ui/Toast.tsx`: top → safe-area-inset-top 반영, 좌우 여백 확보, 중앙 정렬
+---
 
-### 8. 빌드 검증
-- [x] `npx next build` 통과
+## 5. 프론트엔드 변경
+
+### 메인 페이지 전면 교체
+- 세션 목록 → 월간 달력 대시보드
+- 날짜별 운동 여부 표시 (dot/badge)
+
+### 신규 컴포넌트
+- `WorkoutCalendar.tsx` - 월간 달력
+- `WorkoutDaySheet.tsx` - 날짜 선택 시 하단 시트 (모바일)
+- `ExercisePicker.tsx` - 운동명 검색/선택
+- `BottomNav.tsx` - 하단 네비게이션
+
+### 신규 페이지
+- `app/workouts/date/[date]/page.tsx` - 날짜별 운동 목록
+
+### 변경
+- `app/page.tsx` - 달력 대시보드로 교체
+- `WorkoutForm.tsx` - ExercisePicker 연동
+- `ExerciseAccordion.tsx` - displayName/customName 표시
+- `lib/api.ts` - 신규 API 추가
+- `types/index.ts` - 신규 타입 추가
+
+---
+
+## 6. 비기능 변경
+
+### Render 배포 최적화
+- Health check 엔드포인트 설정
+- Spring Boot startup 최적화 검토
+- 콜드스타트 로딩 UI 제공
