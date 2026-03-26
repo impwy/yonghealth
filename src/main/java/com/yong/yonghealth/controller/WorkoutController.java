@@ -1,8 +1,6 @@
 package com.yong.yonghealth.controller;
 
-import com.yong.yonghealth.dto.WorkoutDetailResponse;
-import com.yong.yonghealth.dto.WorkoutRequest;
-import com.yong.yonghealth.dto.WorkoutResponse;
+import com.yong.yonghealth.dto.*;
 import com.yong.yonghealth.service.ports.in.WorkoutUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +47,17 @@ public class WorkoutController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         workoutUseCase.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/calendar")
+    public ResponseEntity<WorkoutCalendarSummaryResponse> getCalendarSummary(
+            @RequestParam int year, @RequestParam int month) {
+        return ResponseEntity.ok(workoutUseCase.getCalendarSummary(year, month));
+    }
+
+    @GetMapping("/date/{date}")
+    public ResponseEntity<List<WorkoutDateSummaryResponse>> getDateSummary(
+            @PathVariable LocalDate date) {
+        return ResponseEntity.ok(workoutUseCase.getDateSummary(date));
     }
 }

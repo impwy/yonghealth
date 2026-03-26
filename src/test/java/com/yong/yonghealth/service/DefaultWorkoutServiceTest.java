@@ -2,9 +2,8 @@ package com.yong.yonghealth.service;
 
 import com.yong.yonghealth.domain.Workout;
 import com.yong.yonghealth.repository.WorkoutRepository;
-import com.yong.yonghealth.dto.WorkoutDetailResponse;
-import com.yong.yonghealth.dto.WorkoutRequest;
-import com.yong.yonghealth.dto.WorkoutResponse;
+import com.yong.yonghealth.domain.Exercise;
+import com.yong.yonghealth.dto.*;
 import com.yong.yonghealth.service.ports.in.WorkoutUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -175,5 +174,98 @@ class DefaultWorkoutServiceTest {
 
         // then
         assertThat(result.getWorkoutDate()).isEqualTo(LocalDate.of(2026, 3, 24));
+    }
+
+    @Test
+    @DisplayName("월간 달력 요약을 조회한다")
+    void getCalendarSummary() {
+        // given
+        Workout workout1 = workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(9, 0))
+                .build());
+        workout1.addExercise(Exercise.builder()
+                .workout(workout1).displayName("벤치프레스").sortOrder(1).build());
+        workout1.addExercise(Exercise.builder()
+                .workout(workout1).displayName("스쿼트").sortOrder(2).build());
+        workoutRepository.flush();
+
+        workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 25))
+                .startTime(LocalTime.of(10, 0))
+                .build());
+
+        // 다른 달 데이터 (조회되지 않아야 함)
+        workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 4, 1))
+                .startTime(LocalTime.of(9, 0))
+                .build());
+
+        // when
+        WorkoutCalendarSummaryResponse response = workoutUseCase.getCalendarSummary(2026, 3);
+
+        // then
+        assertThat(response.getYear()).isEqualTo(2026);
+        assertThat(response.getMonth()).isEqualTo(3);
+        assertThat(response.getDays()).hasSize(2);
+
+        var day24 = response.getDays().stream()
+                .filter(d -> d.getDate().equals("2026-03-24")).findFirst().orElseThrow();
+        assertThat(day24.getWorkoutCount()).isEqualTo(1);
+        assertThat(day24.getExerciseCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("같은 날 여러 세션이 있으면 합산된다")
+    void getCalendarSummary_multipleSessions() {
+        // given
+        workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(9, 0))
+                .build());
+        workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(19, 0))
+                .build());
+
+        // when
+        WorkoutCalendarSummaryResponse response = workoutUseCase.getCalendarSummary(2026, 3);
+
+        // then
+        assertThat(response.getDays()).hasSize(1);
+        assertThat(response.getDays().get(0).getWorkoutCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("날짜별 운동 요약을 조회한다")
+    void getDateSummary() {
+        // given
+        Workout workout = workoutRepository.save(Workout.builder()
+                .workoutDate(LocalDate.of(2026, 3, 24))
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(10, 30))
+                .memo("가슴 운동")
+                .build());
+        workout.addExercise(Exercise.builder()
+                .workout(workout).displayName("벤치프레스").sortOrder(1).build());
+        workoutRepository.flush();
+
+        // when
+        List<WorkoutDateSummaryResponse> result = workoutUseCase.getDateSummary(LocalDate.of(2026, 3, 24));
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getMemo()).isEqualTo("가슴 운동");
+        assertThat(result.get(0).getExerciseCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("해당 날짜에 운동이 없으면 빈 목록을 반환한다")
+    void getDateSummary_empty() {
+        // when
+        List<WorkoutDateSummaryResponse> result = workoutUseCase.getDateSummary(LocalDate.of(2026, 1, 1));
+
+        // then
+        assertThat(result).isEmpty();
     }
 }

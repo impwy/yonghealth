@@ -1,8 +1,6 @@
 package com.yong.yonghealth.controller;
 
-import com.yong.yonghealth.dto.WorkoutDetailResponse;
-import com.yong.yonghealth.dto.WorkoutRequest;
-import com.yong.yonghealth.dto.WorkoutResponse;
+import com.yong.yonghealth.dto.*;
 import com.yong.yonghealth.service.ports.in.WorkoutUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -165,5 +163,55 @@ class WorkoutControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/workouts/calendar - 월간 달력 요약 조회")
+    void getCalendarSummary() throws Exception {
+        WorkoutCalendarSummaryResponse response = WorkoutCalendarSummaryResponse.builder()
+                .year(2026)
+                .month(3)
+                .days(List.of(
+                        WorkoutCalendarSummaryResponse.DaySummary.builder()
+                                .date("2026-03-24")
+                                .workoutCount(1)
+                                .exerciseCount(3)
+                                .totalSets(12)
+                                .build()
+                ))
+                .build();
+
+        given(workoutUseCase.getCalendarSummary(2026, 3)).willReturn(response);
+
+        mockMvc.perform(get("/api/workouts/calendar")
+                        .param("year", "2026")
+                        .param("month", "3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.year").value(2026))
+                .andExpect(jsonPath("$.month").value(3))
+                .andExpect(jsonPath("$.days[0].date").value("2026-03-24"))
+                .andExpect(jsonPath("$.days[0].workoutCount").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /api/workouts/date/{date} - 날짜별 운동 요약 조회")
+    void getDateSummary() throws Exception {
+        WorkoutDateSummaryResponse response = WorkoutDateSummaryResponse.builder()
+                .id(1L)
+                .startTime(LocalTime.of(19, 0))
+                .endTime(LocalTime.of(20, 20))
+                .memo("가슴 + 삼두")
+                .exerciseCount(3)
+                .totalSets(12)
+                .build();
+
+        given(workoutUseCase.getDateSummary(LocalDate.of(2026, 3, 24)))
+                .willReturn(List.of(response));
+
+        mockMvc.perform(get("/api/workouts/date/2026-03-24"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].memo").value("가슴 + 삼두"))
+                .andExpect(jsonPath("$[0].exerciseCount").value(3));
     }
 }

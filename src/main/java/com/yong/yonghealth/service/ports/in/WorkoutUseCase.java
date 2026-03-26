@@ -1,9 +1,7 @@
 package com.yong.yonghealth.service.ports.in;
 
 import com.yong.yonghealth.domain.Workout;
-import com.yong.yonghealth.dto.WorkoutDetailResponse;
-import com.yong.yonghealth.dto.WorkoutRequest;
-import com.yong.yonghealth.dto.WorkoutResponse;
+import com.yong.yonghealth.dto.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,4 +21,8 @@ public interface WorkoutUseCase {
     void delete(Long id);
 
     Workout getWorkout(Long id);
+
+    WorkoutCalendarSummaryResponse getCalendarSummary(int year, int month);
+
+    List<WorkoutDateSummaryResponse> getDateSummary(LocalDate date);
 }
