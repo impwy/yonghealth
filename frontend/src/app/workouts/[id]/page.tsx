@@ -3,9 +3,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import type { WorkoutDetail } from '@/types';
+import type { WorkoutDetail, ExerciseCatalog } from '@/types';
 import { workoutApi, exerciseApi } from '@/lib/api';
 import ExerciseAccordion from '@/components/ExerciseAccordion';
+import ExercisePicker from '@/components/ExercisePicker';
 import Toast from '@/components/ui/Toast';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
@@ -18,8 +19,8 @@ export default function WorkoutDetailPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [newExerciseName, setNewExerciseName] = useState('');
 
   const [form, setForm] = useState({
     workoutDate: '',
@@ -65,6 +66,22 @@ export default function WorkoutDetailPage() {
     }
   };
 
+  const handleFinishWorkout = async () => {
+    const now = new Date().toTimeString().slice(0, 5);
+    try {
+      await workoutApi.update(id, {
+        workoutDate: form.workoutDate,
+        startTime: form.startTime,
+        endTime: now,
+        memo: form.memo || undefined,
+      });
+      setToast({ message: '운동 완료!', type: 'success' });
+      fetchWorkout();
+    } catch {
+      setToast({ message: '저장에 실패했습니다', type: 'error' });
+    }
+  };
+
   const handleDelete = async () => {
     try {
       await workoutApi.delete(id);
@@ -74,14 +91,17 @@ export default function WorkoutDetailPage() {
     }
   };
 
-  const handleAddExercise = async () => {
-    if (!newExerciseName.trim()) return;
+  const handleAddExercise = async (catalog: ExerciseCatalog | null, customName?: string) => {
+    const displayName = catalog ? catalog.name : (customName || '');
+    if (!displayName) return;
     try {
       await exerciseApi.create(id, {
-        name: newExerciseName,
+        exerciseCatalogId: catalog?.id || null,
+        displayName,
+        customName: catalog ? null : customName || null,
         sortOrder: (workout?.exercises.length || 0) + 1,
       });
-      setNewExerciseName('');
+      setShowPicker(false);
       fetchWorkout();
     } catch {
       setToast({ message: '종목 추가에 실패했습니다', type: 'error' });
@@ -92,7 +112,7 @@ export default function WorkoutDetailPage() {
   if (!workout) return <div className="text-center py-20 text-gray-400">운동 기록을 찾을 수 없습니다</div>;
 
   return (
-    <div>
+    <div className="pb-16 md:pb-0">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {showDelete && (
         <ConfirmDialog
@@ -104,7 +124,7 @@ export default function WorkoutDetailPage() {
 
       {/* 뒤로가기 */}
       <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-blue-600 mb-4 min-h-[44px]">
-        &larr; 목록으로
+        &larr; 달력으로
       </Link>
 
       {/* 세션 정보 */}
@@ -146,12 +166,22 @@ export default function WorkoutDetailPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div><span className="text-gray-500">날짜:</span> <span className="font-medium">{workout.workoutDate}</span></div>
-            <div><span className="text-gray-500">시작:</span> <span className="font-medium">{workout.startTime}</span></div>
-            <div><span className="text-gray-500">종료:</span> <span className="font-medium">{workout.endTime || '-'}</span></div>
-            <div><span className="text-gray-500">메모:</span> <span className="font-medium">{workout.memo || '-'}</span></div>
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div><span className="text-gray-500">날짜:</span> <span className="font-medium">{workout.workoutDate}</span></div>
+              <div><span className="text-gray-500">시작:</span> <span className="font-medium">{workout.startTime}</span></div>
+              <div><span className="text-gray-500">종료:</span> <span className="font-medium">{workout.endTime || '-'}</span></div>
+              <div><span className="text-gray-500">메모:</span> <span className="font-medium">{workout.memo || '-'}</span></div>
+            </div>
+            {!workout.endTime && (
+              <button
+                onClick={handleFinishWorkout}
+                className="mt-4 w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 active:bg-green-800 transition min-h-[48px]"
+              >
+                운동 완료 (현재 시간으로 종료)
+              </button>
+            )}
+          </>
         )}
       </div>
 
@@ -167,22 +197,19 @@ export default function WorkoutDetailPage() {
         ))}
 
       {/* 종목 추가 */}
-      <div className="flex gap-2 mt-4">
-        <input
-          type="text"
-          value={newExerciseName}
-          onChange={(e) => setNewExerciseName(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleAddExercise()}
-          placeholder="새 운동 종목명 입력..."
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5"
+      <button
+        onClick={() => setShowPicker(true)}
+        className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-400 hover:text-blue-600 active:bg-blue-50 transition min-h-[48px]"
+      >
+        + 운동 종목 추가
+      </button>
+
+      {showPicker && (
+        <ExercisePicker
+          onSelect={handleAddExercise}
+          onClose={() => setShowPicker(false)}
         />
-        <button
-          onClick={handleAddExercise}
-          className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 active:bg-blue-800 min-h-[44px] whitespace-nowrap"
-        >
-          종목 추가
-        </button>
-      </div>
+      )}
     </div>
   );
 }

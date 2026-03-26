@@ -7,6 +7,11 @@ import type {
   ExerciseSet,
   ExerciseSetRequest,
   WeightUnit,
+  CalendarSummaryResponse,
+  WorkoutDateSummary,
+  ExerciseCatalog,
+  ExerciseCatalogSearchResponse,
+  BodyPart,
 } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
@@ -48,6 +53,12 @@ export const workoutApi = {
 
   delete: (id: number) =>
     fetchApi<void>(`/api/workouts/${id}`, { method: 'DELETE' }),
+
+  getCalendarSummary: (year: number, month: number) =>
+    fetchApi<CalendarSummaryResponse>(`/api/workouts/calendar?year=${year}&month=${month}`),
+
+  getDateSummary: (date: string) =>
+    fetchApi<WorkoutDateSummary[]>(`/api/workouts/date/${date}`),
 };
 
 // Exercise API
@@ -84,6 +95,17 @@ export const exerciseSetApi = {
 
   delete: (id: number) =>
     fetchApi<void>(`/api/sets/${id}`, { method: 'DELETE' }),
+};
+
+// Exercise Catalog API
+export const exerciseCatalogApi = {
+  getAll: () => fetchApi<ExerciseCatalog[]>('/api/exercise-catalog'),
+
+  getByCategory: (category: BodyPart) =>
+    fetchApi<ExerciseCatalog[]>(`/api/exercise-catalog?category=${category}`),
+
+  search: (query: string) =>
+    fetchApi<ExerciseCatalogSearchResponse>(`/api/exercise-catalog/search?query=${encodeURIComponent(query)}`),
 };
 
 // Weight Conversion API

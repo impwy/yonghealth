@@ -9,7 +9,7 @@ export default function Navbar() {
         </Link>
         <Link
           href="/workouts/new"
-          className="bg-white text-blue-600 px-3 py-2 md:px-4 rounded-lg text-sm font-semibold hover:bg-blue-50 active:bg-blue-100 transition min-h-[44px] flex items-center"
+          className="hidden md:flex bg-white text-blue-600 px-3 py-2 md:px-4 rounded-lg text-sm font-semibold hover:bg-blue-50 active:bg-blue-100 transition min-h-[44px] items-center"
         >
           + 새 운동 기록
         </Link>

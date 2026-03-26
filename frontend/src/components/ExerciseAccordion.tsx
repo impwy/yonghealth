@@ -13,10 +13,10 @@ interface ExerciseAccordionProps {
 export default function ExerciseAccordion({ exercise, onUpdate }: ExerciseAccordionProps) {
   const [open, setOpen] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(exercise.name);
+  const [displayName, setDisplayName] = useState(exercise.displayName);
 
   const handleUpdate = async () => {
-    await exerciseApi.update(exercise.id, { name, sortOrder: exercise.sortOrder });
+    await exerciseApi.update(exercise.id, { displayName, sortOrder: exercise.sortOrder });
     setEditing(false);
     onUpdate();
   };
@@ -36,13 +36,13 @@ export default function ExerciseAccordion({ exercise, onUpdate }: ExerciseAccord
           <span className="text-gray-400 text-sm flex-shrink-0">{open ? '▼' : '▶'}</span>
           {editing ? (
             <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
               onClick={(e) => e.stopPropagation()}
               className="border rounded px-2 py-1.5 text-sm min-w-0 flex-1"
             />
           ) : (
-            <span className="font-semibold truncate">{exercise.name}</span>
+            <span className="font-semibold truncate">{exercise.displayName}</span>
           )}
           <span className="text-sm text-gray-400 flex-shrink-0">{exercise.sets.length}세트</span>
         </div>
@@ -50,7 +50,7 @@ export default function ExerciseAccordion({ exercise, onUpdate }: ExerciseAccord
           {editing ? (
             <>
               <button onClick={handleUpdate} className="text-sm text-blue-600 active:text-blue-800 min-h-[44px] px-2">저장</button>
-              <button onClick={() => { setEditing(false); setName(exercise.name); }} className="text-sm text-gray-400 active:text-gray-600 min-h-[44px] px-2">취소</button>
+              <button onClick={() => { setEditing(false); setDisplayName(exercise.displayName); }} className="text-sm text-gray-400 active:text-gray-600 min-h-[44px] px-2">취소</button>
             </>
           ) : (
             <>
