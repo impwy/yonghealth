@@ -70,30 +70,32 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
-      {/* Modal — mobile: fullscreen / desktop: centered */}
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 bg-white flex flex-col md:top-1/2 md:left-1/2 md:right-auto md:bottom-auto md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[80vh] md:rounded-2xl md:shadow-xl">
+      {/* Modal — mobile: fullscreen / desktop: centered with fixed height */}
+      <div className="fixed inset-0 z-50 bg-white flex flex-col
+        md:inset-auto md:top-[10%] md:left-1/2 md:-translate-x-1/2 md:w-[480px] md:h-[80vh] md:rounded-2xl md:shadow-xl">
+
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 env-safe">
-          <h3 className="font-bold text-lg">운동 선택</h3>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 env-safe shrink-0">
+          <h3 className="font-bold text-lg pl-2.5">운동 선택</h3>
           <button onClick={onClose} className="text-gray-400 active:text-gray-600 min-w-[44px] min-h-[44px] flex items-center justify-center">
             ✕
           </button>
         </div>
 
         {/* Search */}
-        <div className="px-4 pt-3">
+        <div className="px-4 pt-3 pb-2 shrink-0">
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => { setQuery(e.target.value); setCategory('ALL'); }}
             placeholder="운동명 검색 (예: 벤치, bench press)"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
           />
         </div>
 
         {/* Category filter */}
-        <div className="px-4 py-2 flex gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="px-4 py-2 flex gap-1.5 overflow-x-auto no-scrollbar border-b border-gray-200 shrink-0">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.value}
@@ -110,7 +112,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
         </div>
 
         {/* Results */}
-        <div className="flex-1 overflow-y-auto px-4 pb-2">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {loading ? (
             <div className="text-center py-8 text-gray-400 text-sm">검색 중...</div>
           ) : results.length === 0 ? (
@@ -118,21 +120,17 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
               {query ? '검색 결과가 없습니다' : '운동 목록이 없습니다'}
             </div>
           ) : (
-            <div className="space-y-1">
+            <div>
               {results.map((catalog) => (
                 <button
                   key={catalog.id}
                   onClick={() => onSelect(catalog)}
-                  className="w-full text-left p-3 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition"
+                  className="w-full text-left px-5 py-3 hover:bg-gray-50 active:bg-gray-100 transition border-b border-gray-100"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-sm">{catalog.name}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {getCategoryLabel(catalog.category)} · {getEquipmentLabel(catalog.equipment)}
-                      </p>
-                    </div>
-                  </div>
+                  <p className="font-medium text-sm">{catalog.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {getCategoryLabel(catalog.category)} · {getEquipmentLabel(catalog.equipment)}
+                  </p>
                 </button>
               ))}
             </div>
@@ -140,7 +138,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
         </div>
 
         {/* Custom input toggle */}
-        <div className="px-4 py-3 border-t border-gray-100 env-safe-bottom">
+        <div className="px-4 py-3 border-t border-gray-200 env-safe-bottom shrink-0">
           {showCustomInput ? (
             <div className="flex gap-2">
               <input
@@ -148,7 +146,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
                 placeholder="직접 입력"
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
                 autoFocus
                 onKeyDown={(e) => e.key === 'Enter' && handleCustomSubmit()}
               />
@@ -163,7 +161,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
           ) : (
             <button
               onClick={() => setShowCustomInput(true)}
-              className="w-full py-2.5 text-sm text-primary-600 font-medium active:text-blue-800"
+              className="w-full py-2.5 text-sm text-primary-600 font-medium active:text-primary-800"
             >
               직접 입력하기
             </button>
