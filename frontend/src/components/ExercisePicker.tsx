@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import type { ExerciseCatalog, BodyPart } from '@/types';
 import { exerciseCatalogApi } from '@/lib/api';
 
@@ -64,10 +65,10 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
     }
   };
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
       {/* Modal */}
       <div className="fixed inset-x-0 bottom-0 top-12 z-50 bg-white rounded-t-2xl shadow-xl flex flex-col md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[80vh] md:rounded-2xl">
@@ -174,7 +175,8 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
           )}
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
 
