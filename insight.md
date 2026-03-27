@@ -413,3 +413,109 @@ jq -e '.hooks.PostToolUse[] | select(.matcher == "Write|Edit") | .hooks[] | .com
 - 훅 커맨드 실패 시 `|| true` 없으면 Claude가 블로킹될 수 있음
 - 쌍따옴표는 JSON 내에서 `\"` 로 이스케이프 필요
 - 훅 설정 후 세션 재시작 없이 현재 세션에 바로 적용됨
+
+---
+
+## Claude Code 실행 모드: Plan Mode vs Accept Edits Mode
+
+### 모드 개요
+
+Claude Code는 파일 수정 및 툴 실행에 대한 **승인 방식**을 모드로 구분한다.
+작업 성격에 따라 적절한 모드를 선택하면 효율과 안전성을 모두 잡을 수 있다.
+
+| 모드 | 키 | 특징 |
+|------|----|------|
+| `default` | 기본 | 위험한 작업마다 개별 승인 요청 |
+| `plan` | Plan Mode | 실행 전 계획만 수립, 실제 변경 없음 |
+| `acceptEdits` | Edits On | 파일 수정은 자동 승인, Bash는 여전히 확인 |
+| `bypassPermissions` | Bypass | 모든 작업 자동 승인 (위험) |
+
+---
+
+### Plan Mode
+
+**언제 쓰나?**
+- 복잡한 기능을 구현하기 전에 Claude의 접근 방식을 먼저 검토하고 싶을 때
+- 잘못된 방향으로 코드가 대량 변경되는 걸 막고 싶을 때
+- 설계 결정에 대해 대화하고 싶을 때
+
+**동작 방식**
+- Claude가 파일 읽기, 코드 탐색은 자유롭게 수행
+- `Write`, `Edit`, `Bash` 등 **실제 변경·실행은 차단**됨
+- 계획(Plan)을 텍스트로 설명하고 사용자가 승인하면 실행 단계로 전환
+
+**활성화 방법**
+```bash
+# CLI 플래그
+claude --plan
+
+# 대화 중 토글
+/plan
+
+# settings.json 기본값으로 지정
+{ "permissions": { "defaultMode": "plan" } }
+```
+
+**CLAUDE.md에서 활용하는 법**
+- 구현 전 explore 에이전트 탐색 → Plan Mode로 설계 확인 → 승인 후 구현
+- 이 프로젝트 규칙: 각 Phase 완료 시 빌드 검증 후 커밋
+
+---
+
+### Accept Edits Mode (Edits On)
+
+**언제 쓰나?**
+- 파일 수정은 빠르게 자동 적용하되, 셸 커맨드(배포, DB 조작 등)는 직접 확인하고 싶을 때
+- 코드 작성 속도를 높이면서 위험한 Bash는 통제권을 유지하고 싶을 때
+
+**동작 방식**
+- `Write`, `Edit`, `NotebookEdit` → **자동 승인** (확인 창 없음)
+- `Bash` → **여전히 개별 승인** 필요
+- 읽기 전용 툴(`Read`, `Glob`, `Grep`) → 항상 자동
+
+**활성화 방법**
+```bash
+# CLI 플래그
+claude --acceptEdits
+
+# 대화 중 토글 (Shift+Tab 반복)
+# default → acceptEdits → plan 순서로 순환
+
+# settings.json 기본값으로 지정
+{ "permissions": { "defaultMode": "acceptEdits" } }
+```
+
+---
+
+### 모드 비교: 실제 사용 시나리오
+
+| 시나리오 | 권장 모드 |
+|---------|---------|
+| 처음 보는 코드베이스 탐색 후 설계 논의 | `plan` |
+| 기능 구현 중 (파일 수정 많음, DB 없음) | `acceptEdits` |
+| 배포 스크립트, DB 마이그레이션 포함 작업 | `default` |
+| 완전히 신뢰하는 반복 작업 자동화 | `bypassPermissions` |
+
+---
+
+### settings.json으로 모드 고정
+
+```json
+{
+  "permissions": {
+    "defaultMode": "acceptEdits"
+  }
+}
+```
+
+- 프로젝트 `.claude/settings.json`에 설정하면 팀 전체에 적용
+- `.claude/settings.local.json`에 설정하면 개인에게만 적용
+- CLI 플래그(`--plan`, `--acceptEdits`)가 settings.json보다 우선
+
+---
+
+### Plan Mode와 훅의 상호작용
+
+- Plan Mode에서는 실제 툴이 실행되지 않으므로 `PostToolUse` 훅도 **발동하지 않음**
+- 계획 승인 후 실행 단계에서 훅이 정상 동작
+- `PreToolUse` 훅은 Plan Mode에서도 동작 (차단 목적으로 활용 가능)
