@@ -70,15 +70,10 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
-      {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 top-12 z-50 bg-white rounded-t-2xl shadow-xl flex flex-col md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[80vh] md:rounded-2xl">
-        {/* Handle bar (mobile) */}
-        <div className="flex justify-center pt-2 pb-1 md:hidden">
-          <div className="w-10 h-1 bg-gray-300 rounded-full" />
-        </div>
-
+      {/* Modal — mobile: fullscreen / desktop: centered */}
+      <div className="fixed inset-0 z-50 bg-white flex flex-col md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[80vh] md:rounded-2xl md:shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 env-safe">
           <h3 className="font-bold text-lg">운동 선택</h3>
           <button onClick={onClose} className="text-gray-400 active:text-gray-600 min-w-[44px] min-h-[44px] flex items-center justify-center">
             ✕
@@ -145,7 +140,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
         </div>
 
         {/* Custom input toggle */}
-        <div className="px-4 py-3 border-t border-gray-100">
+        <div className="px-4 py-3 border-t border-gray-100 env-safe-bottom">
           {showCustomInput ? (
             <div className="flex gap-2">
               <input
