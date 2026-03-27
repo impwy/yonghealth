@@ -71,7 +71,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
       {/* Modal — mobile: fullscreen / desktop: centered */}
-      <div className="fixed inset-0 z-50 bg-white flex flex-col md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[80vh] md:rounded-2xl md:shadow-xl">
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 bg-white flex flex-col md:top-1/2 md:left-1/2 md:right-auto md:bottom-auto md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:max-h-[80vh] md:rounded-2xl md:shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 env-safe">
           <h3 className="font-bold text-lg">운동 선택</h3>
