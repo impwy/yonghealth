@@ -28,8 +28,8 @@ export default function TimerSheet({ onClose }: TimerSheetProps) {
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
 
       <div className={`fixed z-50 bg-white shadow-xl flex flex-col
-        bottom-0 left-0 right-0 rounded-t-2xl max-h-[70vh]
-        md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:right-auto md:rounded-2xl md:w-[360px]
+        bottom-0 left-0 right-0 rounded-t-2xl max-h-[90vh]
+        md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:right-auto md:rounded-2xl md:w-[360px] md:max-h-[90vh]
         ${isComplete ? 'animate-pulse' : ''}`}
       >
         {/* Handle */}
@@ -46,7 +46,7 @@ export default function TimerSheet({ onClose }: TimerSheetProps) {
         </div>
 
         {/* Timer display */}
-        <div className="flex flex-col items-center py-8 px-4">
+        <div className="flex flex-col items-center py-8 px-4 flex-1 overflow-y-auto">
           {/* Circular progress */}
           <div className="relative w-48 h-48 mb-6">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
@@ -115,7 +115,7 @@ export default function TimerSheet({ onClose }: TimerSheetProps) {
         </div>
 
         {/* Presets */}
-        <div className="px-4 py-4 border-t border-gray-100">
+        <div className="px-4 py-4 border-t border-gray-100 env-safe-bottom">
           <p className="text-xs text-gray-400 mb-2 font-medium">프리셋</p>
           <div className="flex gap-2">
             {PRESETS.map((p) => (
