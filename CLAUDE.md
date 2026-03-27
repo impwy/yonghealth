@@ -41,6 +41,44 @@ com.yong.yonghealth/
 - `@WebMvcTest` → `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest`
 - `ObjectMapper` → `tools.jackson.databind.ObjectMapper` (Jackson 3.x)
 
+## Git 브랜치 전략
+
+### 브랜치 구조
+```
+main          ← 운영 배포 (자동 배포, 직접 커밋 금지)
+  └── develop ← 통합 브랜치 (다음 릴리즈 준비)
+        ├── feature/XXX  ← 새 기능 개발
+        ├── fix/XXX      ← 일반 버그 수정
+        └── style/XXX    ← UI/디자인 변경
+  └── hotfix/XXX ← 긴급 운영 버그 (main에서 분기 → main + develop 병합)
+```
+
+### 브랜치 네이밍 규칙
+| 유형 | 네이밍 | 예시 | 분기 원점 | 병합 대상 |
+|------|--------|------|-----------|-----------|
+| 기능 | `feature/간단한-설명` | `feature/rest-timer` | develop | develop |
+| 버그 | `fix/간단한-설명` | `fix/exercise-picker-overlap` | develop | develop |
+| 스타일 | `style/간단한-설명` | `style/calendar-redesign` | develop | develop |
+| 긴급 | `hotfix/간단한-설명` | `hotfix/login-crash` | main | main + develop |
+
+### 워크플로우
+1. `develop`에서 작업 브랜치 생성: `git checkout -b feature/XXX develop`
+2. 작업 완료 후 PR 생성: `feature/XXX → develop`
+3. 코드 리뷰 후 Squash Merge
+4. 릴리즈 준비 완료 시: `develop → main` PR 생성 (버전 태그 포함)
+5. main 병합 시 자동 배포
+
+### PR 규칙
+- PR 제목: 커밋 prefix와 동일 (`feat: 쉬는 시간 타이머`, `fix: 달력 날짜 버그`)
+- 하나의 PR은 하나의 기능/수정에 집중
+- `main` 직접 push 금지 (항상 PR을 통해 병합)
+- develop → main은 여러 기능을 묶어서 릴리즈 단위로 병합
+
+### 버전 태그
+- `v1.0.0` — Phase 1~9 (초기 릴리즈)
+- `v1.1.0` — Phase 10~12 (타이머, UI 개선)
+- 규칙: `v{major}.{minor}.{patch}` (기능 추가=minor, 버그 수정=patch, 호환 깨짐=major)
+
 ## 작업 규칙
 - 구현 전 반드시 **explore 에이전트**를 사용하여 기존 코드베이스를 탐색한 후 작업
 - 각 Phase 완료 시 **빌드/구조 검증** 수행
