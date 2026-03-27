@@ -88,6 +88,11 @@
 - [x] z-index 계층 정리 (z-40 backdrop, z-50 modal)
 - [x] `npx next build` 통과
 
+### BUG-2: TimerSheet 프리셋 가림 수정 (iPhone 12) ✅
+- [x] max-h-[70vh] → max-h-[90vh] 로 확장
+- [x] 타이머 표시 영역에 flex-1 overflow-y-auto 적용
+- [x] 프리셋 섹션에 env-safe-bottom 추가 (홈 인디케이터 대응)
+
 ### Phase 12: UI 디자인 개선 ✅
 - [x] 커스텀 컬러 테마 정의 (primary indigo, surface, border, status)
 - [x] EmptyState 컴포넌트 구현

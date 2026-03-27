@@ -79,6 +79,19 @@ main          ← 운영 배포 (자동 배포, 직접 커밋 금지)
 - `v1.1.0` — Phase 10~12 (타이머, UI 개선)
 - 규칙: `v{major}.{minor}.{patch}` (기능 추가=minor, 버그 수정=patch, 호환 깨짐=major)
 
+## 필수 Git 워크플로우 (모든 변경에 자동 적용)
+코드 수정 요청이 들어오면 **지시 없이도** 아래 순서를 반드시 따른다:
+
+1. **브랜치 생성**: 작업 유형에 맞는 브랜치를 develop에서 생성 후 전환
+   - 버그 수정 → `git checkout -b fix/설명 develop`
+   - 새 기능 → `git checkout -b feature/설명 develop`
+   - UI/스타일 → `git checkout -b style/설명 develop`
+2. **코드 수정**: 작업 수행
+3. **task.md 업데이트**: 해당 항목 체크박스 추가 및 완료 처리
+4. **커밋**: 한국어 커밋 메시지로 커밋
+
+단, develop 브랜치가 없으면 main에서 먼저 develop을 생성한다.
+
 ## 작업 규칙
 - 구현 전 반드시 **explore 에이전트**를 사용하여 기존 코드베이스를 탐색한 후 작업
 - 각 Phase 완료 시 **빌드/구조 검증** 수행
