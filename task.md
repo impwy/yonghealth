@@ -73,3 +73,30 @@
 - [x] Health check 엔드포인트 (`GET /health`)
 - [x] 프론트엔드 콜드스타트 로딩 상태 (각 페이지에 로딩 UI 포함)
 - [x] 최종 빌드 검증: `./gradlew test` 통과 + `npx next build` 통과
+
+### Phase 10: 쉬는 시간 타이머 ✅
+- [x] TimerContext 구현 (deadline 기반 카운트다운, visibilitychange 대응)
+- [x] Providers 클라이언트 래퍼 → layout.tsx 전역 상태 주입
+- [x] TimerSheet 구현 (프리셋 60/90/120/180초, ±15초 조절, 일시정지/리셋)
+- [x] 종료 알림 (Vibration API + AudioContext + 시각 효과)
+- [x] BottomNav(모바일)에 타이머 진입점 (남은 시간 표시)
+- [x] Navbar(데스크탑)에 타이머 진입점
+- [x] `npx next build` 통과
+
+### Phase 11: BUG-1 ExercisePicker 레이어 겹침 수정 ✅
+- [x] ExercisePicker에 createPortal 적용 (document.body 렌더링)
+- [x] z-index 계층 정리 (z-40 backdrop, z-50 modal)
+- [x] `npx next build` 통과
+
+### Phase 12: UI 디자인 개선 ✅
+- [x] 커스텀 컬러 테마 정의 (primary indigo, surface, border, status)
+- [x] EmptyState 컴포넌트 구현
+- [x] Skeleton 컴포넌트 구현 (Calendar, Card, Detail 변형)
+- [x] WorkoutCalendar 리스타일 (SVG 화살표, ring 오늘 강조, scale+shadow 선택)
+- [x] WorkoutDaySheet 리스타일 (Portal, accent border, EmptyState/Skeleton 연동)
+- [x] ExerciseAccordion 리스타일 (SVG chevron, primary border, 뱃지)
+- [x] SetTable 카드형 전환 (원형 뱃지, 교차 배경, focus ring)
+- [x] 세션 상세 페이지 Skeleton 로딩 적용
+- [x] 버튼 계층 색상 통일 (Primary/Secondary/Danger)
+- [x] 전체 blue → primary 테마 통일
+- [x] `npx next build` 통과
