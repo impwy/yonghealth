@@ -28,7 +28,7 @@ export default function BottomNav() {
           <Link
             href={items[0].href}
             className={`flex flex-col items-center justify-center flex-1 h-full min-w-[44px] transition-colors ${
-              pathname === items[0].href ? 'text-blue-600' : 'text-gray-400 active:text-gray-600'
+              pathname === items[0].href ? 'text-primary-600' : 'text-gray-400 active:text-gray-600'
             }`}
           >
             <span className="text-lg">{items[0].icon}</span>
@@ -39,7 +39,7 @@ export default function BottomNav() {
           <button
             onClick={() => setShowTimer(true)}
             className={`flex flex-col items-center justify-center flex-1 h-full min-w-[44px] transition-colors ${
-              timerActive ? 'text-blue-600' : 'text-gray-400 active:text-gray-600'
+              timerActive ? 'text-primary-600' : 'text-gray-400 active:text-gray-600'
             } ${isComplete ? 'animate-pulse' : ''}`}
           >
             {timerActive ? (
@@ -59,7 +59,7 @@ export default function BottomNav() {
           <Link
             href={items[1].href}
             className={`flex flex-col items-center justify-center flex-1 h-full min-w-[44px] transition-colors ${
-              pathname === items[1].href ? 'text-blue-600' : 'text-gray-400 active:text-gray-600'
+              pathname === items[1].href ? 'text-primary-600' : 'text-gray-400 active:text-gray-600'
             }`}
           >
             <span className="text-lg">{items[1].icon}</span>

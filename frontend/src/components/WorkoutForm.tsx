@@ -89,7 +89,7 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
     <>
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* 세션 기본 정보 */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-5">
+        <div className="bg-surface rounded-2xl border border-border shadow-sm p-4 md:p-5">
           <h2 className="font-semibold mb-4">운동 정보</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -136,7 +136,7 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
 
         {/* 종목 리스트 */}
         {exercises.map((exercise, ei) => (
-          <div key={ei} className="bg-white rounded-lg border border-gray-200 p-4 md:p-5">
+          <div key={ei} className="bg-surface rounded-2xl border border-border shadow-sm p-4 md:p-5">
             <div className="flex items-center justify-between mb-4 gap-2">
               <div className="flex-1 min-w-0">
                 <p className="text-base md:text-lg font-semibold truncate">{exercise.displayName}</p>
@@ -215,7 +215,7 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
             <button
               type="button"
               onClick={() => addSet(ei)}
-              className="text-sm text-blue-600 active:text-blue-800 min-h-[44px]"
+              className="text-sm text-primary-600 active:text-primary-800 min-h-[44px]"
             >
               + 세트 추가
             </button>
@@ -225,7 +225,7 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
         <button
           type="button"
           onClick={() => setShowPicker(true)}
-          className="w-full py-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-400 hover:text-blue-600 active:bg-blue-50 transition min-h-[52px]"
+          className="w-full py-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-primary-400 hover:text-primary-600 active:bg-primary-50 transition min-h-[52px]"
         >
           + 운동 종목 추가
         </button>
@@ -233,7 +233,7 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 transition min-h-[52px]"
+          className="w-full py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 active:bg-primary-700 disabled:bg-gray-400 transition min-h-[52px]"
         >
           {loading ? '저장 중...' : '운동 기록 저장'}
         </button>

@@ -9,6 +9,7 @@ import ExerciseAccordion from '@/components/ExerciseAccordion';
 import ExercisePicker from '@/components/ExercisePicker';
 import Toast from '@/components/ui/Toast';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { SkeletonDetail } from '@/components/ui/Skeleton';
 
 export default function WorkoutDetailPage() {
   const params = useParams();
@@ -108,7 +109,9 @@ export default function WorkoutDetailPage() {
     }
   };
 
-  if (loading) return <div className="text-center py-20 text-gray-400">불러오는 중...</div>;
+  const inputClass = "w-full border border-gray-300 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition";
+
+  if (loading) return <SkeletonDetail />;
   if (!workout) return <div className="text-center py-20 text-gray-400">운동 기록을 찾을 수 없습니다</div>;
 
   return (
@@ -123,24 +126,25 @@ export default function WorkoutDetailPage() {
       )}
 
       {/* 뒤로가기 */}
-      <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-blue-600 mb-4 min-h-[44px]">
-        &larr; 달력으로
+      <Link href="/" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary-600 mb-4 min-h-[44px] transition">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        달력으로
       </Link>
 
       {/* 세션 정보 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-5 mb-6">
+      <div className="bg-surface rounded-2xl border border-border p-4 md:p-5 mb-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl md:text-2xl font-bold">운동 상세</h1>
           <div className="flex gap-2">
             {editing ? (
               <>
-                <button onClick={handleUpdate} className="px-3 py-2 md:px-4 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 active:bg-blue-800 min-h-[44px]">저장</button>
-                <button onClick={() => setEditing(false)} className="px-3 py-2 md:px-4 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 active:bg-gray-100 min-h-[44px]">취소</button>
+                <button onClick={handleUpdate} className="px-3 py-2 md:px-4 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 active:bg-primary-700 min-h-[44px] transition">저장</button>
+                <button onClick={() => setEditing(false)} className="px-3 py-2 md:px-4 border border-gray-300 rounded-xl text-sm hover:bg-gray-50 active:bg-gray-100 min-h-[44px] transition">취소</button>
               </>
             ) : (
               <>
-                <button onClick={() => setEditing(true)} className="px-3 py-2 md:px-4 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 active:bg-gray-100 min-h-[44px]">수정</button>
-                <button onClick={() => setShowDelete(true)} className="px-3 py-2 md:px-4 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 active:bg-red-700 min-h-[44px]">삭제</button>
+                <button onClick={() => setEditing(true)} className="px-3 py-2 md:px-4 border border-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 active:bg-gray-100 min-h-[44px] transition">수정</button>
+                <button onClick={() => setShowDelete(true)} className="px-3 py-2 md:px-4 bg-danger text-white rounded-xl text-sm font-semibold hover:bg-red-600 active:bg-red-700 min-h-[44px] transition">삭제</button>
               </>
             )}
           </div>
@@ -149,34 +153,34 @@ export default function WorkoutDetailPage() {
         {editing ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">날짜</label>
-              <input type="date" value={form.workoutDate} onChange={(e) => setForm({ ...form, workoutDate: e.target.value })} className="w-full border rounded-lg px-3 py-2.5" />
+              <label className="block text-sm text-gray-500 mb-1.5 font-medium">날짜</label>
+              <input type="date" value={form.workoutDate} onChange={(e) => setForm({ ...form, workoutDate: e.target.value })} className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">시작 시간</label>
-              <input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} className="w-full border rounded-lg px-3 py-2.5" />
+              <label className="block text-sm text-gray-500 mb-1.5 font-medium">시작 시간</label>
+              <input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">종료 시간</label>
-              <input type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} className="w-full border rounded-lg px-3 py-2.5" />
+              <label className="block text-sm text-gray-500 mb-1.5 font-medium">종료 시간</label>
+              <input type="time" value={form.endTime} onChange={(e) => setForm({ ...form, endTime: e.target.value })} className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">메모</label>
-              <input type="text" value={form.memo} onChange={(e) => setForm({ ...form, memo: e.target.value })} className="w-full border rounded-lg px-3 py-2.5" />
+              <label className="block text-sm text-gray-500 mb-1.5 font-medium">메모</label>
+              <input type="text" value={form.memo} onChange={(e) => setForm({ ...form, memo: e.target.value })} className={inputClass} />
             </div>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div><span className="text-gray-500">날짜:</span> <span className="font-medium">{workout.workoutDate}</span></div>
-              <div><span className="text-gray-500">시작:</span> <span className="font-medium">{workout.startTime}</span></div>
-              <div><span className="text-gray-500">종료:</span> <span className="font-medium">{workout.endTime || '-'}</span></div>
-              <div><span className="text-gray-500">메모:</span> <span className="font-medium">{workout.memo || '-'}</span></div>
+              <div><span className="text-gray-400">날짜</span> <span className="font-semibold ml-2">{workout.workoutDate}</span></div>
+              <div><span className="text-gray-400">시작</span> <span className="font-semibold ml-2 tabular-nums">{workout.startTime}</span></div>
+              <div><span className="text-gray-400">종료</span> <span className="font-semibold ml-2 tabular-nums">{workout.endTime || '-'}</span></div>
+              <div><span className="text-gray-400">메모</span> <span className="font-semibold ml-2">{workout.memo || '-'}</span></div>
             </div>
             {!workout.endTime && (
               <button
                 onClick={handleFinishWorkout}
-                className="mt-4 w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 active:bg-green-800 transition min-h-[48px]"
+                className="mt-4 w-full py-3 bg-success text-white rounded-xl font-semibold hover:bg-green-700 active:bg-green-800 transition min-h-[48px]"
               >
                 운동 완료 (현재 시간으로 종료)
               </button>
@@ -187,7 +191,7 @@ export default function WorkoutDetailPage() {
 
       {/* 종목 리스트 */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">운동 종목 ({workout.exercises.length})</h2>
+        <h2 className="text-lg font-bold">운동 종목 <span className="text-primary-500">({workout.exercises.length})</span></h2>
       </div>
 
       {workout.exercises
@@ -199,7 +203,7 @@ export default function WorkoutDetailPage() {
       {/* 종목 추가 */}
       <button
         onClick={() => setShowPicker(true)}
-        className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-400 hover:text-blue-600 active:bg-blue-50 transition min-h-[48px]"
+        className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl text-gray-400 hover:border-primary-400 hover:text-primary-600 active:bg-primary-50 transition min-h-[48px] font-medium"
       >
         + 운동 종목 추가
       </button>

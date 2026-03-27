@@ -105,7 +105,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
               onClick={() => { setCategory(cat.value); setQuery(''); }}
               className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition
                 ${category === cat.value
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-600 active:bg-gray-200'
                 }`}
             >
@@ -160,7 +160,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
               <button
                 onClick={handleCustomSubmit}
                 disabled={!customName.trim()}
-                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium active:bg-blue-700 disabled:bg-gray-300 min-h-[44px]"
+                className="px-4 py-2.5 bg-primary-600 text-white rounded-lg text-sm font-medium active:bg-primary-700 disabled:bg-gray-300 min-h-[44px]"
               >
                 추가
               </button>
@@ -168,7 +168,7 @@ export default function ExercisePicker({ onSelect, onClose }: ExercisePickerProp
           ) : (
             <button
               onClick={() => setShowCustomInput(true)}
-              className="w-full py-2.5 text-sm text-blue-600 font-medium active:text-blue-800"
+              className="w-full py-2.5 text-sm text-primary-600 font-medium active:text-blue-800"
             >
               직접 입력하기
             </button>
