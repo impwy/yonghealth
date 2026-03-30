@@ -91,7 +91,7 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
         {/* 세션 기본 정보 */}
         <div className="bg-surface rounded-2xl border border-border shadow-sm p-4 md:p-5">
           <h2 className="font-semibold mb-4">운동 정보</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
             <div>
               <label className="block text-sm text-gray-600 mb-1">날짜</label>
               <input
@@ -102,24 +102,26 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">시작 시간</label>
-              <input
-                type="time"
-                value={workout.startTime}
-                onChange={(e) => setWorkout({ ...workout, startTime: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2.5"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">종료 시간 (선택)</label>
-              <input
-                type="time"
-                value={workout.endTime}
-                onChange={(e) => setWorkout({ ...workout, endTime: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2.5"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">시작</label>
+                <input
+                  type="time"
+                  value={workout.startTime}
+                  onChange={(e) => setWorkout({ ...workout, startTime: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2.5"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">종료</label>
+                <input
+                  type="time"
+                  value={workout.endTime}
+                  onChange={(e) => setWorkout({ ...workout, endTime: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2.5"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">메모 (선택)</label>
@@ -153,69 +155,53 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
               </button>
             </div>
 
-            {/* 세트 테이블 */}
-            <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-              <table className="w-full text-sm mb-3 min-w-[320px]">
-                <thead>
-                  <tr className="text-left text-gray-500 border-b">
-                    <th className="py-2 w-12">세트</th>
-                    <th className="py-2">중량</th>
-                    <th className="py-2 w-16">단위</th>
-                    <th className="py-2 w-14">횟수</th>
-                    <th className="py-2 w-11"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {exercise.sets.map((set, si) => (
-                    <tr key={si} className="border-b border-gray-100">
-                      <td className="py-2">{set.setNumber}</td>
-                      <td className="py-2">
-                        <input
-                          type="number"
-                          step="0.5"
-                          value={set.weight || ''}
-                          onChange={(e) => updateSet(ei, si, 'weight', e.target.value)}
-                          className="w-full max-w-[80px] border rounded px-2 py-1.5"
-                          required
-                        />
-                      </td>
-                      <td className="py-2">
-                        <select
-                          value={set.weightUnit}
-                          onChange={(e) => updateSet(ei, si, 'weightUnit', e.target.value)}
-                          className="border rounded px-1 py-1.5"
-                        >
-                          <option value="KG">KG</option>
-                          <option value="LB">LB</option>
-                        </select>
-                      </td>
-                      <td className="py-2">
-                        <input
-                          type="number"
-                          value={set.reps || ''}
-                          onChange={(e) => updateSet(ei, si, 'reps', e.target.value)}
-                          className="w-full max-w-[56px] border rounded px-2 py-1.5"
-                          required
-                        />
-                      </td>
-                      <td className="py-2 text-right">
-                        <button
-                          type="button"
-                          onClick={() => removeSet(ei, si)}
-                          className="text-red-400 active:text-red-600 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                        >
-                          X
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* 세트 리스트 */}
+            <div className="space-y-2 mb-3">
+              {exercise.sets.map((set, si) => (
+                <div key={si} className="flex items-center gap-2 bg-gray-50 rounded-lg p-2.5">
+                  <span className="w-6 h-6 rounded-full bg-primary-100 text-primary-600 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                    {set.setNumber}
+                  </span>
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={set.weight || ''}
+                    onChange={(e) => updateSet(ei, si, 'weight', e.target.value)}
+                    className="w-16 border rounded-lg px-2 py-1.5 text-sm text-center"
+                    placeholder="중량"
+                    required
+                  />
+                  <select
+                    value={set.weightUnit}
+                    onChange={(e) => updateSet(ei, si, 'weightUnit', e.target.value)}
+                    className="border rounded-lg px-1.5 py-1.5 text-sm"
+                  >
+                    <option value="KG">KG</option>
+                    <option value="LB">LB</option>
+                  </select>
+                  <input
+                    type="number"
+                    value={set.reps || ''}
+                    onChange={(e) => updateSet(ei, si, 'reps', e.target.value)}
+                    className="w-14 border rounded-lg px-2 py-1.5 text-sm text-center"
+                    placeholder="횟수"
+                    required
+                  />
+                  <span className="text-xs text-gray-400">회</span>
+                  <button
+                    type="button"
+                    onClick={() => removeSet(ei, si)}
+                    className="ml-auto text-red-400 active:text-red-600 min-w-[32px] min-h-[32px] flex items-center justify-center flex-shrink-0"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
             </div>
             <button
               type="button"
               onClick={() => addSet(ei)}
-              className="text-sm text-primary-600 active:text-primary-800 min-h-[44px]"
+              className="w-full text-sm text-primary-600 active:text-primary-800 min-h-[44px] border border-dashed border-primary-200 rounded-lg"
             >
               + 세트 추가
             </button>
