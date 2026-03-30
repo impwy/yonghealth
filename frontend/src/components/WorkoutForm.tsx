@@ -92,44 +92,42 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
         <div className="bg-surface rounded-2xl border border-border shadow-sm p-4 md:p-5">
           <h2 className="font-semibold mb-4">운동 정보</h2>
           <div className="space-y-3">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">날짜</label>
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-gray-600 w-10 flex-shrink-0">날짜</label>
               <input
                 type="date"
                 value={workout.workoutDate}
                 onChange={(e) => setWorkout({ ...workout, workoutDate: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2.5"
+                className="flex-1 min-w-0 border rounded-lg px-3 py-2.5"
                 required
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">시작</label>
-                <input
-                  type="time"
-                  value={workout.startTime}
-                  onChange={(e) => setWorkout({ ...workout, startTime: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2.5"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">종료</label>
-                <input
-                  type="time"
-                  value={workout.endTime}
-                  onChange={(e) => setWorkout({ ...workout, endTime: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2.5"
-                />
-              </div>
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-gray-600 w-10 flex-shrink-0">시작</label>
+              <input
+                type="time"
+                value={workout.startTime}
+                onChange={(e) => setWorkout({ ...workout, startTime: e.target.value })}
+                className="flex-1 min-w-0 border rounded-lg px-3 py-2.5"
+                required
+              />
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">메모 (선택)</label>
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-gray-600 w-10 flex-shrink-0">종료</label>
+              <input
+                type="time"
+                value={workout.endTime}
+                onChange={(e) => setWorkout({ ...workout, endTime: e.target.value })}
+                className="flex-1 min-w-0 border rounded-lg px-3 py-2.5"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-gray-600 w-10 flex-shrink-0">메모</label>
               <input
                 type="text"
                 value={workout.memo}
                 onChange={(e) => setWorkout({ ...workout, memo: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2.5"
+                className="flex-1 min-w-0 border rounded-lg px-3 py-2.5"
                 placeholder="오늘의 컨디션..."
               />
             </div>
