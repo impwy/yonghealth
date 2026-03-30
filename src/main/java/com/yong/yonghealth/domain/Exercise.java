@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public class Exercise extends BaseTimeEntity {
 
     private String note;
 
+    @BatchSize(size = 50)
     @OneToMany(mappedBy = "exercise", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExerciseSet> sets = new ArrayList<>();
 
@@ -59,7 +61,4 @@ public class Exercise extends BaseTimeEntity {
         sets.add(set);
     }
 
-    public void removeSet(ExerciseSet set) {
-        sets.remove(set);
-    }
 }
