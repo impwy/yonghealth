@@ -4,4 +4,5 @@ import com.yong.yonghealth.domain.ExerciseSet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExerciseSetRepository extends JpaRepository<ExerciseSet, Long> {
+    boolean existsByExerciseIdAndSetNumber(Long exerciseId, Integer setNumber);
 }
