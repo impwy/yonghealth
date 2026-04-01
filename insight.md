@@ -519,3 +519,56 @@ claude --acceptEdits
 - Plan Mode에서는 실제 툴이 실행되지 않으므로 `PostToolUse` 훅도 **발동하지 않음**
 - 계획 승인 후 실행 단계에서 훅이 정상 동작
 - `PreToolUse` 훅은 Plan Mode에서도 동작 (차단 목적으로 활용 가능)
+
+---
+
+## 풋볼 기능 구현 인사이트
+
+### 등급별 랜덤 편성은 "셔플 + 시작점 랜덤 + 라운드 로빈" 조합이 단순하고 안정적
+
+```ts
+const startPos = Math.floor(Math.random() * teamCount);
+for (let i = 0; i < groupMembers.length; i++) {
+  teams[(startPos + i) % teamCount].push(groupMembers[i]);
+}
+```
+
+- 각 등급을 먼저 독립적으로 셔플하면 같은 등급 안에서 랜덤성이 확보된다.
+- 이후 라운드 로빈 분배를 하면 팀별 인원 수 편차가 커지지 않는다.
+- 시작 팀을 매 등급마다 랜덤으로 바꾸면 항상 1팀이 상위 등급을 먼저 가져가는 편향을 줄일 수 있다.
+- 현재 프로젝트 규칙은 `1~6등급 개별 분배`이며, 3등급과 4등급도 합치지 않는다.
+
+### controlled number input은 "문자열 상태"와 "확정된 숫자 상태"를 분리해야 UX가 망가지지 않는다
+
+```ts
+const [teamCountInput, setTeamCountInput] = useState(String(teamCount));
+```
+
+- `input[type=number]`를 바로 숫자로 강제하면 사용자가 값을 지우는 순간 `NaN`이 발생한다.
+- 이 상태를 `|| 2` 같은 기본값 처리로 덮어쓰면 입력 중 값이 즉시 원래 값으로 튕긴다.
+- 해결은 입력 중 상태를 문자열로 유지하고, blur / Enter 시점에만 정규화하는 것이다.
+- 실무에서는 숫자 입력 버그가 "유효성 검증" 문제가 아니라 "입력 중 상태 관리" 문제인 경우가 많다.
+
+### 스텝 버튼은 입력 오류를 줄이는 가장 값싼 UX 개선이다
+
+- 팀 수처럼 범위가 좁은 숫자 입력에는 `+/-` 버튼을 함께 두는 편이 낫다.
+- 모바일에서 키보드 입력보다 오동작이 적고, 최소/최대 범위도 자연스럽게 통제할 수 있다.
+- 텍스트 입력과 버튼 입력을 같이 제공하면 빠른 수정과 정확한 제어를 둘 다 만족시킬 수 있다.
+
+### 테마 CSS는 컴포넌트별 인라인 클래스보다 "도메인 전용 클래스"로 끊는 편이 유지보수에 유리하다
+
+- 풋볼 화면은 일반 primary 테마와 다른 시각 언어가 필요했다.
+- `football-shell`, `football-panel`, `football-chip` 같은 공통 클래스를 `globals.css`에 올려두면
+  여러 컴포넌트에서 같은 분위기를 반복 적용할 수 있다.
+- Tailwind 유틸만으로도 구현 가능하지만, 도메인 테마가 커질수록 공통 클래스로 추상화하는 편이 수정 비용이 낮다.
+
+### 로컬 Docker MySQL 사용 시 `localhost`보다 `127.0.0.1`이 안전할 수 있다
+
+```bash
+./gradlew bootRun --args='--spring.datasource.url=jdbc:mysql://127.0.0.1:3306/yonghealth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul'
+```
+
+- 환경에 따라 `localhost`가 IPv6로 먼저 해석되면 MySQL 연결이 거부될 수 있다.
+- 같은 컨테이너/포트가 살아 있어도 애플리케이션에서는 `Communications link failure`가 날 수 있다.
+- 이때 JDBC URL만 `127.0.0.1`로 바꿔도 바로 해결되는 경우가 있다.
+- 로컬 실행 이슈는 코드 문제가 아니라 네트워크 해석 문제일 수 있으므로, 애플리케이션 로그와 Docker 상태를 같이 봐야 한다.
