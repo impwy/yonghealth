@@ -18,8 +18,8 @@ public class FootballMemberRequest {
     @NotBlank(message = "이름은 필수입니다")
     private String name;
 
-    @NotNull(message = "등급은 필수입니다")
-    @Min(value = 1, message = "등급은 1 이상이어야 합니다")
-    @Max(value = 6, message = "등급은 6 이하여야 합니다")
+    @NotNull(message = "티어는 필수입니다")
+    @Min(value = 1, message = "티어는 1 이상이어야 합니다")
+    @Max(value = 6, message = "티어는 6 이하여야 합니다")
     private Integer grade;
 }

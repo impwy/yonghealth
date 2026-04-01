@@ -15,6 +15,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -69,6 +70,29 @@ class FootballMemberControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("홍길동"))
                 .andExpect(jsonPath("$.grade").value(3));
+    }
+
+    @Test
+    @DisplayName("PUT /api/football/members/{id} - 회원 수정")
+    void update() throws Exception {
+        FootballMemberRequest request = FootballMemberRequest.builder()
+                .name("수정된 이름")
+                .grade(5)
+                .build();
+
+        given(footballMemberUseCase.update(eq(1L), any(FootballMemberRequest.class)))
+                .willReturn(FootballMemberResponse.builder()
+                        .id(1L)
+                        .name("수정된 이름")
+                        .grade(5)
+                        .build());
+
+        mockMvc.perform(put("/api/football/members/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("수정된 이름"))
+                .andExpect(jsonPath("$.grade").value(5));
     }
 
     @Test

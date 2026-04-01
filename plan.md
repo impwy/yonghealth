@@ -181,6 +181,14 @@ frontend/src/
 5. global(config/error/util) test 추가
 6. 핵심 시나리오 API E2E test 추가
 
+### Phase 16: 풋볼 관리 분리와 저장 팀 스냅샷
+1. `/football`과 `/football/manage` 하위 탭 구조 추가
+2. 팀 생성 화면에서 저장 회원 중 이번 경기 참가자 선택 UI 추가
+3. 풋볼 회원 수정 API 및 관리 UI 추가
+4. 선택된 랜덤 편성안 저장용 스냅샷 엔티티/API 추가
+5. 저장 팀 조회 UI 추가
+6. Neon 수동 반영용 SQL 문안 정리
+
 ---
 
 ## 5. 로컬 실행 메모

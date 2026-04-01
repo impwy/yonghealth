@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { FootballMember } from '@/types';
 import { footballApi } from '@/lib/api';
 
 interface MemberListProps {
   members: FootballMember[];
+  onMemberUpdated: (member: FootballMember) => void;
   onMemberDeleted: (id: number) => void;
+  defaultExpanded?: boolean;
 }
 
 const GRADE_COLORS: Record<number, string> = {
@@ -18,13 +21,41 @@ const GRADE_COLORS: Record<number, string> = {
   6: 'border-l-gray-500 bg-gray-50',
 };
 
-export default function MemberList({ members, onMemberDeleted }: MemberListProps) {
+export default function MemberList({
+  members,
+  onMemberUpdated,
+  onMemberDeleted,
+  defaultExpanded = false,
+}: MemberListProps) {
   const [deleting, setDeleting] = useState<number | null>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [editingMember, setEditingMember] = useState<FootballMember | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editGrade, setEditGrade] = useState(3);
+  const [editError, setEditError] = useState('');
+  const [saving, setSaving] = useState(false);
   const tierSummaries = [1, 2, 3, 4, 5, 6].map((grade) => ({
     grade,
     count: members.filter((member) => member.grade === grade).length,
   }));
+
+  const openEditModal = (member: FootballMember) => {
+    setEditingMember(member);
+    setEditName(member.name);
+    setEditGrade(member.grade);
+    setEditError('');
+  };
+
+  const closeEditModal = () => {
+    if (saving) {
+      return;
+    }
+
+    setEditingMember(null);
+    setEditName('');
+    setEditGrade(3);
+    setEditError('');
+  };
 
   const handleDelete = async (id: number) => {
     setDeleting(id);
@@ -38,6 +69,38 @@ export default function MemberList({ members, onMemberDeleted }: MemberListProps
     }
   };
 
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingMember) {
+      return;
+    }
+
+    const trimmedName = editName.trim();
+    if (!trimmedName) {
+      setEditError('이름을 입력해주세요');
+      return;
+    }
+
+    if (members.some((member) => member.id !== editingMember.id && member.name === trimmedName)) {
+      setEditError('이미 등록된 이름입니다');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const updatedMember = await footballApi.updateMember(editingMember.id, {
+        name: trimmedName,
+        grade: editGrade,
+      });
+      onMemberUpdated(updatedMember);
+      closeEditModal();
+    } catch (error) {
+      setEditError(error instanceof Error ? error.message : '수정에 실패했습니다');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <section className="football-panel rounded-2xl p-4 md:p-5">
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -46,9 +109,6 @@ export default function MemberList({ members, onMemberDeleted }: MemberListProps
             Squad List
           </p>
           <h2 className="mt-1 text-base font-bold text-gray-900">등록 회원</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            필요할 때만 펼쳐서 보고, 평소에는 요약만 확인할 수 있습니다.
-          </p>
         </div>
         <div className="min-w-[86px] rounded-2xl border border-emerald-200 bg-white/85 px-3 py-2 text-center shadow-sm">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-football-700">
@@ -104,15 +164,6 @@ export default function MemberList({ members, onMemberDeleted }: MemberListProps
                 key={member.id}
                 className={`football-member-card relative rounded-xl border-l-4 p-3 ${GRADE_COLORS[member.grade] || 'border-l-gray-400 bg-gray-50'}`}
               >
-                <button
-                  type="button"
-                  onClick={() => handleDelete(member.id)}
-                  disabled={deleting === member.id}
-                  className="absolute right-2 top-2 rounded-full border border-gray-200 bg-white px-1.5 py-0.5 text-[11px] text-gray-400 transition hover:border-red-200 hover:text-red-500 disabled:opacity-50"
-                  aria-label={`${member.name} 삭제`}
-                >
-                  ✕
-                </button>
                 <div className="pr-8">
                   <p className="truncate text-sm font-semibold text-gray-900">{member.name}</p>
                   <div className="mt-2 flex items-center gap-2">
@@ -121,10 +172,106 @@ export default function MemberList({ members, onMemberDeleted }: MemberListProps
                     </span>
                   </div>
                 </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(member)}
+                    className="inline-flex min-h-[36px] items-center justify-center rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-xs font-semibold text-football-800 transition hover:border-emerald-300 hover:bg-emerald-50"
+                  >
+                    수정
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(member.id)}
+                    disabled={deleting === member.id}
+                    className="inline-flex min-h-[36px] items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:text-red-500 disabled:opacity-50"
+                  >
+                    삭제
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )
+      )}
+
+      {editingMember && typeof document !== 'undefined' && createPortal(
+        <>
+          <div className="fixed inset-0 z-40 bg-black/45" onClick={closeEditModal} />
+          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-3xl border border-emerald-100 bg-white shadow-2xl md:inset-auto md:left-1/2 md:top-1/2 md:w-[440px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-3xl">
+            <div className="flex justify-center pb-1 pt-2 md:hidden">
+              <div className="h-1 w-10 rounded-full bg-gray-300" />
+            </div>
+
+            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-football-700">
+                  Roster Edit
+                </p>
+                <h3 className="mt-1 text-lg font-bold text-gray-900">회원 수정</h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeEditModal}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400 transition hover:text-gray-600"
+                aria-label="회원 수정 창 닫기"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-4 px-5 py-5">
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">이름</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full rounded-xl border border-emerald-200 bg-white px-3 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-gray-700">티어</label>
+                <select
+                  value={editGrade}
+                  onChange={(e) => setEditGrade(Number(e.target.value))}
+                  className="w-full rounded-xl border border-emerald-200 bg-white px-3 py-3 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                >
+                  {[1, 2, 3, 4, 5, 6].map((grade) => (
+                    <option key={grade} value={grade}>
+                      {grade}티어
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {editError && (
+                <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
+                  {editError}
+                </p>
+              )}
+
+              <div className="flex gap-3 pb-2">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="inline-flex min-h-[46px] flex-1 items-center justify-center rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="inline-flex min-h-[46px] flex-1 items-center justify-center rounded-xl bg-football-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-football-800 active:bg-football-900 disabled:cursor-not-allowed disabled:bg-gray-300"
+                >
+                  {saving ? '수정 중...' : '저장하기'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </>,
+        document.body
       )}
     </section>
   );

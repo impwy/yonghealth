@@ -117,6 +117,30 @@ export interface FootballMemberRequest {
   grade: number;
 }
 
+export interface FootballSavedTeamMember {
+  memberId?: number | null;
+  memberName: string;
+  memberGrade: number;
+}
+
+export interface FootballSavedTeamLineup {
+  teamNumber: number;
+  members: FootballSavedTeamMember[];
+}
+
+export interface FootballSavedTeam {
+  id: number;
+  name: string;
+  teamCount: number;
+  createdAt: string;
+  teams: FootballSavedTeamLineup[];
+}
+
+export interface FootballSavedTeamRequest {
+  name?: string;
+  teams: FootballSavedTeamLineup[];
+}
+
 export type GradeGroup = '1티어' | '2티어' | '3티어' | '4티어' | '5티어' | '6티어';
 
 export interface TeamResult {

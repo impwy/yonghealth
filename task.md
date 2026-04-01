@@ -142,3 +142,12 @@
 - [x] global(config/error/util) test 추가
 - [x] API E2E test 추가
 - [x] `./gradlew test` 통과
+
+### Phase 16: 풋볼 관리 분리와 저장 팀 스냅샷 ✅
+- [x] `/football`과 `/football/manage` 하위 탭 구조 추가
+- [x] 팀 생성 화면에서 이번 경기 참가 멤버 선택 UI 추가
+- [x] 풋볼 회원 수정 API 및 관리 모달 추가
+- [x] 선택된 랜덤 편성안 저장 API 및 조회 UI 추가
+- [x] 저장 팀 스냅샷용 Neon SQL 문안 정리
+- [x] `./gradlew test` 통과
+- [x] `cd frontend && npm run build` 통과

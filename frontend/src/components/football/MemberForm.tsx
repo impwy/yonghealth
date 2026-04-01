@@ -89,17 +89,6 @@ export default function MemberForm({ members, onMemberAdded }: MemberFormProps) 
         >
           + 회원 등록
         </button>
-        <p className="text-xs text-gray-500">
-          모바일에서는 등록 폼이 화면 위로 겹쳐 열려 목록 영역을 밀어내지 않습니다.
-        </p>
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {[1, 2, 3, 4, 5, 6].map((g) => (
-          <span key={g} className="football-chip rounded-full px-2.5 py-1 text-[11px] font-semibold">
-            {g}티어 개별 편성
-          </span>
-        ))}
       </div>
 
       {showModal && typeof document !== 'undefined' && createPortal(

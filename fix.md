@@ -182,3 +182,39 @@
 - API E2E test:
   - workout → exercise → set → summary 흐름
   - football member 생성/조회/삭제 흐름
+
+---
+
+## 10. 풋볼 관리 분리 / 저장 팀 추가
+
+### 화면 구조 개편
+- `/football`은 팀 생성 전용 화면으로 분리
+- `/football/manage` 하위 탭을 추가해 회원 등록/수정/삭제를 이동
+- 풋볼 화면 내부에 `팀 생성`, `풋볼 관리` 서브 탭을 배치
+
+### 팀 생성 흐름 변경
+- 팀 생성 화면에서 저장된 전체 회원을 불러온 뒤, 이번 경기 참가자만 선택하도록 변경
+- 선택 인원이 바뀌면 기존 랜덤 시나리오를 초기화하도록 수정
+- 팀 수 검증 기준을 전체 회원 수가 아니라 선택 인원 수로 변경
+
+### 회원 관리 기능 보강
+- 풋볼 회원 수정 API(`PUT /api/football/members/{id}`) 추가
+- 회원 목록 카드에 수정 액션과 수정 모달 추가
+
+### 저장 팀 스냅샷
+- 선택한 랜덤 편성안을 별도 보관하는 `football_saved_team`, `football_saved_team_member` 스냅샷 구조 추가
+- 저장 팀은 원본 회원과 분리된 이름/티어 스냅샷으로 보관되므로, 이후 회원 수정/삭제가 되어도 기록이 유지됨
+- Neon 수동 반영용 SQL 문안을 별도 전달 가능하도록 정리
+
+### 테스트 확장
+- domain:
+  - `FootballMemberTest`
+  - `FootballSavedTeamTest`
+- service:
+  - `DefaultFootballMemberServiceTest` 수정 경로 추가
+  - `DefaultFootballSavedTeamServiceTest` 추가
+- controller:
+  - `FootballMemberControllerTest` 수정 경로 추가
+  - `FootballSavedTeamControllerTest` 추가
+- e2e:
+  - `FootballApiE2ETest`에 회원 수정 + 저장 팀 스냅샷 흐름 추가
