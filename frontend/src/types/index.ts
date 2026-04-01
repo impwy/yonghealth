@@ -117,7 +117,7 @@ export interface FootballMemberRequest {
   grade: number;
 }
 
-export type GradeGroup = '1등급' | '2등급' | '3등급' | '4등급' | '5등급' | '6등급';
+export type GradeGroup = '1티어' | '2티어' | '3티어' | '4티어' | '5티어' | '6티어';
 
 export interface TeamResult {
   teamNumber: number;

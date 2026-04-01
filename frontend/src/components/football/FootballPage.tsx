@@ -71,7 +71,7 @@ export default function FootballPage() {
               풋볼 팀 편성 보드
             </h1>
             <p className="mt-2 max-w-2xl break-keep text-sm leading-6 text-emerald-50/90 md:text-base">
-              회원을 등록하고 등급별로 랜덤 셔플한 뒤 여러 편성안을 빠르게 비교할 수 있습니다.
+              회원을 등록하고 티어별로 랜덤 셔플한 뒤 여러 편성안을 빠르게 비교할 수 있습니다.
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -94,7 +94,7 @@ export default function FootballPage() {
             <div className="mt-4 grid grid-cols-3 gap-2">
               {gradeSummaries.map(({ grade, count }) => (
                 <div key={grade} className="rounded-xl bg-white/10 px-3 py-2 text-center">
-                  <p className="text-[11px] text-emerald-100">{grade}등급</p>
+                  <p className="text-[11px] text-emerald-100">{grade}티어</p>
                   <p className="mt-1 text-lg font-bold">{count}</p>
                 </div>
               ))}

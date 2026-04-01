@@ -86,7 +86,7 @@ export default function TeamGenerator({
               </p>
               <h2 className="mt-1 break-keep text-lg font-bold">랜덤 팀 생성</h2>
               <p className="mt-1 max-w-xl break-keep text-sm leading-6 text-emerald-100">
-                등급별로 섞은 뒤 팀별로 균형 있게 분배합니다.
+                티어별로 섞은 뒤 팀별로 균형 있게 분배합니다.
               </p>
             </div>
             <div className="football-panel-dark self-start rounded-xl px-3 py-2 text-right md:min-w-[132px]">
@@ -101,7 +101,7 @@ export default function TeamGenerator({
             <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
               <p className="text-sm font-semibold text-emerald-900">편성 규칙</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {['1등급', '2등급', '3등급', '4등급', '5등급', '6등급'].map((group) => (
+                {['1티어', '2티어', '3티어', '4티어', '5티어', '6티어'].map((group) => (
                   <span
                     key={group}
                     className="football-chip rounded-full px-2.5 py-1 text-xs font-medium"
@@ -111,8 +111,8 @@ export default function TeamGenerator({
                 ))}
               </div>
               <p className="mt-3 text-xs leading-5 text-emerald-800/80">
-                각 등급 안에서 먼저 무작위로 섞고, 시작 팀 위치를 바꿔가며 분배합니다.
-                3등급과 4등급도 서로 합치지 않고 독립적으로 처리합니다.
+                각 티어 안에서 먼저 무작위로 섞고, 시작 팀 위치를 바꿔가며 분배합니다.
+                3티어와 4티어도 서로 합치지 않고 독립적으로 처리합니다.
               </p>
             </div>
 
@@ -224,12 +224,11 @@ export default function TeamGenerator({
                               key={member.id}
                               className="flex items-center justify-between rounded-lg border border-white/80 bg-white/85 px-3 py-2 shadow-[0_6px_16px_rgba(22,101,52,0.08)]"
                             >
-                              <div>
+                              <div className="min-w-0">
                                 <p className="text-sm font-semibold text-gray-900">{member.name}</p>
-                                <p className="text-[11px] text-gray-500">{getGradeGroup(member.grade)} 풀</p>
                               </div>
                               <span className="rounded-full bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-700">
-                                {member.grade}등급
+                                {getGradeGroup(member.grade)}
                               </span>
                             </div>
                           ))}
