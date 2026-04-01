@@ -23,10 +23,43 @@ function shuffle<T>(array: T[]): T[] {
   return arr;
 }
 
+export function getBalancedTeamSizes(memberCount: number, teamCount: number): number[] {
+  if (teamCount <= 0) {
+    return [];
+  }
+
+  const baseSize = Math.floor(memberCount / teamCount);
+  const remainder = memberCount % teamCount;
+  const sizes = Array.from({ length: teamCount }, () => baseSize);
+  const extraSlotOrder = shuffle(Array.from({ length: teamCount }, (_, index) => index));
+
+  for (let i = 0; i < remainder; i++) {
+    sizes[extraSlotOrder[i]] += 1;
+  }
+
+  return sizes;
+}
+
+function findNextAvailableTeamIndex(
+  teams: FootballMember[][],
+  targetSizes: number[],
+  startIndex: number,
+): number {
+  for (let offset = 0; offset < teams.length; offset++) {
+    const teamIndex = (startIndex + offset) % teams.length;
+    if (teams[teamIndex].length < targetSizes[teamIndex]) {
+      return teamIndex;
+    }
+  }
+
+  return startIndex;
+}
+
 export function generateTeams(members: FootballMember[], teamCount: number): TeamResult[] {
   const teams: FootballMember[][] = Array.from({ length: teamCount }, () => []);
+  const targetSizes = getBalancedTeamSizes(members.length, teamCount);
 
-  // 등급 그룹별로 분류
+  // 티어 그룹별로 분류
   const groups = new Map<GradeGroup, FootballMember[]>();
   for (const group of GRADE_GROUP_ORDER) {
     groups.set(group, []);
@@ -36,14 +69,16 @@ export function generateTeams(members: FootballMember[], teamCount: number): Tea
     groups.get(group)!.push(member);
   }
 
-  // 각 그룹별로 셔플 후 라운드로빈 분배 (시작 위치 랜덤)
+  // 각 티어별로 셔플 후, 팀별 목표 인원 수를 넘기지 않도록 분배
   for (const group of GRADE_GROUP_ORDER) {
     const groupMembers = shuffle(groups.get(group)!);
     if (groupMembers.length === 0) continue;
 
-    const startPos = Math.floor(Math.random() * teamCount);
-    for (let i = 0; i < groupMembers.length; i++) {
-      teams[(startPos + i) % teamCount].push(groupMembers[i]);
+    let nextTeamIndex = Math.floor(Math.random() * teamCount);
+    for (const member of groupMembers) {
+      const teamIndex = findNextAvailableTeamIndex(teams, targetSizes, nextTeamIndex);
+      teams[teamIndex].push(member);
+      nextTeamIndex = (teamIndex + 1) % teamCount;
     }
   }
 

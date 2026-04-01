@@ -33,10 +33,12 @@ export default function FootballPage() {
 
   const handleMemberAdded = (member: FootballMember) => {
     setMembers((prev) => [...prev, member].sort((a, b) => a.grade - b.grade || a.name.localeCompare(b.name)));
+    setScenarios([]);
   };
 
   const handleMemberDeleted = (id: number) => {
     setMembers((prev) => prev.filter((m) => m.id !== id));
+    setScenarios([]);
   };
 
   const handleGenerate = (nextTeamCount: number) => {
@@ -71,7 +73,7 @@ export default function FootballPage() {
               풋볼 팀 편성 보드
             </h1>
             <p className="mt-2 max-w-2xl break-keep text-sm leading-6 text-emerald-50/90 md:text-base">
-              회원을 등록하고 티어별로 랜덤 셔플한 뒤 여러 편성안을 빠르게 비교할 수 있습니다.
+              회원을 등록하고 10명이면 5대5처럼 전체 인원을 균등하게 나눈 뒤 여러 편성안을 빠르게 비교할 수 있습니다.
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -111,7 +113,7 @@ export default function FootballPage() {
         </div>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+      <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
         <MemberForm members={members} onMemberAdded={handleMemberAdded} />
         <MemberList members={members} onMemberDeleted={handleMemberDeleted} />
       </div>
