@@ -146,3 +146,39 @@
 - Docker MySQL 컨테이너 `yonghealth-mysql` 사용 가능
 - 환경에 따라 `localhost:3306`이 아닌 `127.0.0.1:3306`으로 실행해야 정상 연결된다.
 - 풋볼 화면 검증 시 백엔드를 `8081`, 프론트를 `3000` 또는 `3001`로 우회 실행할 수 있다.
+
+---
+
+## 9. 테스트 체계 정비
+
+### 운영 규칙 반영
+- `CLAUDE.md`, `AGENTS.md`에 TDD(`Red → Green → Refactor`) 원칙 추가
+- 새 기능/버그 수정 시 테스트 없는 머지 금지 규칙 반영
+- `service`, `global`, `domain`, `controller`, `E2E` 전 계층 테스트 원칙 명시
+
+### 정비/확인한 테스트 범위
+- Domain logic test:
+  - `Workout`, `Exercise`, `ExerciseCatalog`
+- Domain persistence/integration test:
+  - `Workout` 감사 필드, cascade 삭제
+- Service test:
+  - `DefaultWorkoutService`
+  - `DefaultExerciseService`
+  - `DefaultExerciseSetService`
+  - `DefaultExerciseCatalogService`
+  - `DefaultFootballMemberService`
+- Controller slice test:
+  - `WorkoutController`
+  - `ExerciseController`
+  - `ExerciseSetController`
+  - `ExerciseCatalogController`
+  - `FootballMemberController`
+  - `HealthController`
+- Global test:
+  - `GlobalExceptionHandler`
+  - `WebConfig`
+  - `ExerciseCatalogDataInitializer`
+  - `WeightConverter`
+- API E2E test:
+  - workout → exercise → set → summary 흐름
+  - football member 생성/조회/삭제 흐름

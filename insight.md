@@ -47,6 +47,22 @@ const remainder = memberCount % teamCount;
 
 ---
 
+## 테스트 / TDD
+
+### TDD는 "계층별 테스트 역할 분리"가 있어야 유지된다
+- domain logic test는 순수 규칙을 빠르게 고정한다.
+- service test는 트랜잭션, 정렬, 중복 방지, 집계 같은 비즈니스 규칙을 검증한다.
+- controller slice test는 HTTP 계약, 직렬화, validation, 예외 매핑을 고정한다.
+- global test는 예외 처리, CORS, initializer, util 같은 횡단 관심사를 검증한다.
+- E2E test는 실제 사용자 플로우가 계층을 관통해 깨지지 않는지 최종 확인한다.
+
+### E2E는 테스트 메서드에 `@Transactional`을 걸면 오히려 왜곡될 수 있다
+- API E2E는 요청 간 실제 영속성 흐름을 보는 게 목적이다.
+- 테스트 메서드 트랜잭션이 바깥에서 영속성 컨텍스트를 잡고 있으면, 이미 로드된 엔티티 컬렉션이 stale 상태로 남을 수 있다.
+- 이 경우 요청 단위 트랜잭션과 다르게 보이므로, E2E는 cleanup 기반으로 격리하는 편이 더 현실적이다.
+
+---
+
 ## JPA 엔티티 설계
 
 ### @NoArgsConstructor(access = AccessLevel.PROTECTED)

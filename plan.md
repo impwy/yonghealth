@@ -173,6 +173,14 @@ frontend/src/
 5. 회원 목록을 요약/상세 토글 구조로 변경
 6. 회원 추가/삭제 후 기존 편성안 자동 초기화
 
+### Phase 15: TDD 테스트 기반 확장
+1. `CLAUDE.md`, `AGENTS.md`에 TDD와 테스트 커버리지 원칙 명시
+2. domain logic test 추가
+3. service integration test 정비
+4. controller slice test 정비
+5. global(config/error/util) test 추가
+6. 핵심 시나리오 API E2E test 추가
+
 ---
 
 ## 5. 로컬 실행 메모

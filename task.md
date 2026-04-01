@@ -133,3 +133,12 @@
 - [x] 회원 추가/삭제 시 기존 편성안 자동 초기화
 - [x] `./gradlew test` 통과
 - [x] `cd frontend && npm run build` 통과
+
+### Phase 15: TDD 테스트 기반 확장 ✅
+- [x] `CLAUDE.md`, `AGENTS.md`에 TDD 원칙 반영
+- [x] domain logic test 추가
+- [x] service integration test 정비 및 전체 스위트 검증
+- [x] controller slice test 정비 및 전체 스위트 검증
+- [x] global(config/error/util) test 추가
+- [x] API E2E test 추가
+- [x] `./gradlew test` 통과
