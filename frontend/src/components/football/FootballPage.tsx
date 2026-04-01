@@ -71,8 +71,7 @@ export default function FootballPage() {
               풋볼 팀 편성 보드
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-emerald-50/90 md:text-base">
-              회원을 등록하고 등급별로 랜덤 셔플한 뒤 여러 편성안을 바로 비교할 수 있습니다.
-              3등급과 4등급은 각각 독립된 풀로 나눠 편성합니다.
+              편하게 팀을 만들어 줍니다.
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2">
