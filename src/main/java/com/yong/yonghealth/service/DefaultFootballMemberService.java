@@ -43,6 +43,20 @@ public class DefaultFootballMemberService implements FootballMemberUseCase {
 
     @Override
     @Transactional
+    public FootballMemberResponse update(Long id, FootballMemberRequest request) {
+        FootballMember member = footballMemberRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다. id=" + id));
+
+        if (footballMemberRepository.existsByNameAndIdNot(request.getName(), id)) {
+            throw new IllegalArgumentException("이미 등록된 이름입니다: " + request.getName());
+        }
+
+        member.update(request.getName(), request.getGrade());
+        return FootballMemberResponse.from(member);
+    }
+
+    @Override
+    @Transactional
     public void delete(Long id) {
         FootballMember member = footballMemberRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다. id=" + id));

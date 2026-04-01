@@ -28,6 +28,14 @@ public class FootballMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(footballMemberUseCase.create(request));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<FootballMemberResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody FootballMemberRequest request
+    ) {
+        return ResponseEntity.ok(footballMemberUseCase.update(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         footballMemberUseCase.delete(id);

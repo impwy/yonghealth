@@ -26,4 +26,9 @@ public class FootballMember extends BaseTimeEntity {
         this.name = name;
         this.grade = grade;
     }
+
+    public void update(String name, Integer grade) {
+        this.name = name;
+        this.grade = grade;
+    }
 }

@@ -7,10 +7,15 @@ import EmptyState from '@/components/ui/EmptyState';
 
 interface TeamGeneratorProps {
   members: FootballMember[];
+  totalMemberCount: number;
   teamCount: number;
   onTeamCountChange: (teamCount: number) => void;
   scenarios: TeamScenario[];
   onGenerate: (teamCount: number) => void;
+  saveName: string;
+  onSaveNameChange: (value: string) => void;
+  onSaveScenario: (scenario: TeamScenario) => void;
+  savingScenarioId: number | null;
 }
 
 function getValidationMessage(memberCount: number, teamCount: number) {
@@ -23,7 +28,7 @@ function getValidationMessage(memberCount: number, teamCount: number) {
   }
 
   if (teamCount > memberCount) {
-    return '팀 수는 전체 회원 수보다 많을 수 없습니다.';
+    return '팀 수는 선택된 인원 수보다 많을 수 없습니다.';
   }
 
   return '';
@@ -31,10 +36,15 @@ function getValidationMessage(memberCount: number, teamCount: number) {
 
 export default function TeamGenerator({
   members,
+  totalMemberCount,
   teamCount,
   onTeamCountChange,
   scenarios,
   onGenerate,
+  saveName,
+  onSaveNameChange,
+  onSaveScenario,
+  savingScenarioId,
 }: TeamGeneratorProps) {
   const [teamCountInput, setTeamCountInput] = useState(String(teamCount));
   const maxTeamCount = Math.max(members.length, teamCount, 12);
@@ -87,12 +97,8 @@ export default function TeamGenerator({
               </p>
               <h2 className="mt-1 break-keep text-lg font-bold">랜덤 팀 생성</h2>
               <p className="mt-1 max-w-xl break-keep text-sm leading-6 text-emerald-100">
-                티어별로 섞은 뒤 팀 인원 수가 최대한 균등해지도록 분배합니다.
+                이번 경기로 선택한 멤버만 티어별로 섞고, 팀 인원 수가 최대한 균등해지도록 분배합니다.
               </p>
-            </div>
-            <div className="football-panel-dark self-start rounded-xl px-3 py-2 text-right md:min-w-[132px]">
-              <p className="whitespace-nowrap text-[11px] text-emerald-100">생성안</p>
-              <p className="whitespace-nowrap text-xl font-bold">3개</p>
             </div>
           </div>
         </div>
@@ -114,6 +120,9 @@ export default function TeamGenerator({
               <p className="mt-3 text-xs leading-5 text-emerald-800/80">
                 각 티어 안에서 먼저 무작위로 섞고, 10명이면 5대5, 9명이면 5대4처럼
                 전체 인원 수가 최대한 균등해지도록 분배합니다.
+              </p>
+              <p className="mt-2 text-xs font-medium text-emerald-900">
+                등록 {totalMemberCount}명 중 이번 경기 {members.length}명 선택
               </p>
             </div>
 
@@ -158,7 +167,7 @@ export default function TeamGenerator({
                 <span className="shrink-0 text-sm font-medium text-gray-500">팀</span>
               </div>
               <p className="mt-2 text-xs text-gray-500">
-                원하는 팀 수를 먼저 정해둘 수 있고, 회원 수보다 많으면 생성 시 안내합니다.
+                원하는 팀 수를 먼저 정해둘 수 있고, 선택된 인원보다 많으면 생성 시 안내합니다.
               </p>
               {balancedTeamSizes.length > 0 && (
                 <p className="mt-2 text-xs font-medium text-football-800">
@@ -186,64 +195,93 @@ export default function TeamGenerator({
               <EmptyState
                 icon="🥅"
                 title="편성 결과가 아직 없습니다"
-                description="회원을 등록하고 팀 수를 정한 뒤 랜덤 편성을 생성하세요."
+                description="이번 경기 멤버를 선택하고 팀 수를 정한 뒤 랜덤 편성을 생성하세요."
                 action={canGenerate ? { label: '첫 편성 만들기', onClick: handleGenerateClick } : undefined}
               />
             </div>
           ) : (
-            <div className="grid gap-4 xl:grid-cols-3">
-              {scenarios.map((scenario) => (
-                <article
-                  key={scenario.id}
-                  className="football-pitch-card overflow-hidden rounded-2xl"
-                >
-                  <div className="flex items-center justify-between border-b border-emerald-100 bg-emerald-50/70 px-4 py-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
-                        Scenario {scenario.id}
-                      </p>
-                      <h3 className="mt-1 text-sm font-bold text-gray-900">
-                        랜덤 편성안 {scenario.id}
-                      </h3>
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+                <label htmlFor="saved-team-name" className="block text-sm font-semibold text-gray-700">
+                  보관 이름
+                </label>
+                <input
+                  id="saved-team-name"
+                  type="text"
+                  value={saveName}
+                  onChange={(e) => onSaveNameChange(e.target.value)}
+                  placeholder="비워두면 날짜 기반 이름으로 저장됩니다"
+                  className="mt-2 w-full rounded-xl border border-emerald-200 bg-white px-3 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+                <p className="mt-2 text-xs text-gray-500">
+                  원하는 편성안에서 보관 버튼을 누르면 이 이름으로 저장합니다.
+                </p>
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-3">
+                {scenarios.map((scenario) => (
+                  <article
+                    key={scenario.id}
+                    className="football-pitch-card overflow-hidden rounded-2xl"
+                  >
+                    <div className="flex items-center justify-between border-b border-emerald-100 bg-emerald-50/70 px-4 py-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
+                          Scenario {scenario.id}
+                        </p>
+                        <h3 className="mt-1 text-sm font-bold text-gray-900">
+                          랜덤 편성안 {scenario.id}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                          {scenario.teams.length}팀
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => onSaveScenario(scenario)}
+                          disabled={savingScenarioId !== null}
+                          className="inline-flex min-h-[36px] items-center justify-center rounded-full bg-football-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-football-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+                        >
+                          {savingScenarioId === scenario.id ? '보관 중...' : '이 안 보관'}
+                        </button>
+                      </div>
                     </div>
-                    <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                      {scenario.teams.length}팀
-                    </span>
-                  </div>
 
-                  <div className="space-y-3 p-4">
-                    {scenario.teams.map((team) => (
-                      <section
-                        key={team.teamNumber}
-                        className="rounded-xl border border-emerald-100 bg-[radial-gradient(circle_at_top,_rgba(187,247,208,0.45),_rgba(255,255,255,0.95)_55%)] p-3"
-                      >
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-bold text-emerald-900">{team.teamNumber}팀</h4>
-                          <span className="rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-emerald-700">
-                            {team.members.length}명
-                          </span>
-                        </div>
+                    <div className="space-y-3 p-4">
+                      {scenario.teams.map((team) => (
+                        <section
+                          key={team.teamNumber}
+                          className="rounded-xl border border-emerald-100 bg-[radial-gradient(circle_at_top,_rgba(187,247,208,0.45),_rgba(255,255,255,0.95)_55%)] p-3"
+                        >
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-bold text-emerald-900">{team.teamNumber}팀</h4>
+                            <span className="rounded-full bg-white/90 px-2 py-1 text-[11px] font-semibold text-emerald-700">
+                              {team.members.length}명
+                            </span>
+                          </div>
 
-                        <div className="mt-3 space-y-2">
-                          {team.members.map((member) => (
-                            <div
-                              key={member.id}
-                              className="flex items-center justify-between rounded-lg border border-white/80 bg-white/85 px-3 py-2 shadow-[0_6px_16px_rgba(22,101,52,0.08)]"
-                            >
-                              <div className="min-w-0">
-                                <p className="text-sm font-semibold text-gray-900">{member.name}</p>
+                          <div className="mt-3 space-y-2">
+                            {team.members.map((member) => (
+                              <div
+                                key={member.id}
+                                className="flex items-center justify-between rounded-lg border border-white/80 bg-white/85 px-3 py-2 shadow-[0_6px_16px_rgba(22,101,52,0.08)]"
+                              >
+                                <div className="min-w-0">
+                                  <p className="text-sm font-semibold text-gray-900">{member.name}</p>
+                                </div>
+                                <span className="rounded-full bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-700">
+                                  {getGradeGroup(member.grade)}
+                                </span>
                               </div>
-                              <span className="rounded-full bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-700">
-                                {getGradeGroup(member.grade)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-                    ))}
-                  </div>
-                </article>
-              ))}
+                            ))}
+                          </div>
+                        </section>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
           )}
         </div>

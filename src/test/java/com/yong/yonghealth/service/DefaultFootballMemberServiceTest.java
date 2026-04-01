@@ -80,6 +80,33 @@ class DefaultFootballMemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원을 수정한다")
+    void update() {
+        // given
+        FootballMemberResponse created = footballMemberUseCase.create(createRequest("수정전", 2));
+
+        // when
+        FootballMemberResponse updated = footballMemberUseCase.update(created.getId(), createRequest("수정후", 4));
+
+        // then
+        assertThat(updated.getName()).isEqualTo("수정후");
+        assertThat(updated.getGrade()).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("수정 시 다른 회원과 이름이 중복되면 예외가 발생한다")
+    void update_duplicateName() {
+        // given
+        FootballMemberResponse first = footballMemberUseCase.create(createRequest("홍길동", 1));
+        footballMemberUseCase.create(createRequest("김철수", 2));
+
+        // when & then
+        assertThatThrownBy(() -> footballMemberUseCase.update(first.getId(), createRequest("김철수", 5)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("이미 등록된 이름입니다");
+    }
+
+    @Test
     @DisplayName("회원을 삭제한다")
     void delete() {
         // given

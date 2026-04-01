@@ -14,6 +14,8 @@ import type {
   BodyPart,
   FootballMember,
   FootballMemberRequest,
+  FootballSavedTeam,
+  FootballSavedTeamRequest,
 } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
@@ -140,8 +142,22 @@ export const footballApi = {
       body: JSON.stringify(data),
     }),
 
+  updateMember: (id: number, data: FootballMemberRequest) =>
+    fetchApi<FootballMember>(`/api/football/members/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
   deleteMember: (id: number) =>
     fetchApi<void>(`/api/football/members/${id}`, { method: 'DELETE' }),
+
+  getSavedTeams: () => fetchApi<FootballSavedTeam[]>('/api/football/saved-teams'),
+
+  saveTeam: (data: FootballSavedTeamRequest) =>
+    fetchApi<FootballSavedTeam>('/api/football/saved-teams', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
 
 // Weight Conversion API

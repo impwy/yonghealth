@@ -9,5 +9,7 @@ public interface FootballMemberRepository extends JpaRepository<FootballMember, 
 
     boolean existsByName(String name);
 
+    boolean existsByNameAndIdNot(String name, Long id);
+
     List<FootballMember> findAllByOrderByGradeAscNameAsc();
 }

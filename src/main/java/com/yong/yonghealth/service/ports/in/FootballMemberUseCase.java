@@ -11,5 +11,7 @@ public interface FootballMemberUseCase {
 
     FootballMemberResponse create(FootballMemberRequest request);
 
+    FootballMemberResponse update(Long id, FootballMemberRequest request);
+
     void delete(Long id);
 }
