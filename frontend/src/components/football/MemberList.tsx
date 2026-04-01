@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import type { FootballMember } from '@/types';
-import { getGradeGroup } from '@/lib/teamGenerator';
 import { footballApi } from '@/lib/api';
 
 interface MemberListProps {
@@ -43,12 +42,15 @@ export default function MemberList({ members, onMemberDeleted }: MemberListProps
           </p>
           <h2 className="mt-1 text-base font-bold text-gray-900">등록 회원</h2>
           <p className="mt-1 text-sm text-gray-600">
-            등급별로 정렬된 현재 편성 후보 목록입니다.
+            티어별로 정렬된 현재 편성 후보 목록입니다.
           </p>
         </div>
-        <span className="football-chip rounded-full px-3 py-1 text-xs font-semibold">
-          {members.length}명
-        </span>
+        <div className="min-w-[86px] rounded-2xl border border-emerald-200 bg-white/85 px-3 py-2 text-center shadow-sm">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-football-700">
+            Roster
+          </p>
+          <p className="mt-1 text-sm font-bold text-gray-900">{members.length}명</p>
+        </div>
       </div>
 
       {members.length === 0 ? (
@@ -64,7 +66,7 @@ export default function MemberList({ members, onMemberDeleted }: MemberListProps
               const count = members.filter((member) => member.grade === grade).length;
               return (
                 <span key={grade} className="football-chip rounded-full px-3 py-1 text-[11px] font-semibold">
-                  {grade}등급 {count}명
+                  {grade}티어 {count}명
                 </span>
               );
             })}
@@ -88,9 +90,8 @@ export default function MemberList({ members, onMemberDeleted }: MemberListProps
                 <p className="text-sm font-semibold text-gray-900 truncate">{member.name}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <span className="rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-gray-700 shadow-sm">
-                    {member.grade}등급
+                    {member.grade}티어
                   </span>
-                  <span className="text-[11px] text-gray-500">{getGradeGroup(member.grade)} 풀</span>
                 </div>
               </div>
             </div>

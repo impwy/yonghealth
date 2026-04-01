@@ -11,7 +11,7 @@ import TeamGenerator from './TeamGenerator';
 export default function FootballPage() {
   const [members, setMembers] = useState<FootballMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [scenarios, setScenarios] = useState<TeamScenario[]>([]);
   const [teamCount, setTeamCount] = useState(2);
 
@@ -19,9 +19,9 @@ export default function FootballPage() {
     try {
       const data = await footballApi.getMembers();
       setMembers(data);
-      setLoadError(false);
-    } catch {
-      setLoadError(true);
+      setLoadError(null);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : '풋볼 API 연결에 실패했습니다');
     } finally {
       setLoading(false);
     }
@@ -67,11 +67,11 @@ export default function FootballPage() {
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-emerald-50 uppercase">
               Football Mode
             </div>
-            <h1 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">
+            <h1 className="mt-4 break-keep text-2xl font-black tracking-tight md:text-3xl">
               풋볼 팀 편성 보드
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-emerald-50/90 md:text-base">
-              편하게 팀을 만들어 줍니다.
+            <p className="mt-2 max-w-2xl break-keep text-sm leading-6 text-emerald-50/90 md:text-base">
+              회원을 등록하고 티어별로 랜덤 셔플한 뒤 여러 편성안을 빠르게 비교할 수 있습니다.
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -94,7 +94,7 @@ export default function FootballPage() {
             <div className="mt-4 grid grid-cols-3 gap-2">
               {gradeSummaries.map(({ grade, count }) => (
                 <div key={grade} className="rounded-xl bg-white/10 px-3 py-2 text-center">
-                  <p className="text-[11px] text-emerald-100">{grade}등급</p>
+                  <p className="text-[11px] text-emerald-100">{grade}티어</p>
                   <p className="mt-1 text-lg font-bold">{count}</p>
                 </div>
               ))}
@@ -104,9 +104,10 @@ export default function FootballPage() {
       </section>
 
       {loadError && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          풋볼 회원 API 연결에 실패했습니다. 백엔드가 내려가 있으면 목록은 비어 보일 수 있지만,
-          서버가 다시 올라오면 새로고침 후 정상 동작합니다.
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 break-keep">
+          풋볼 회원 API 연결에 실패했습니다: {loadError}
+          {' '}
+          배포 반영이 덜 되었거나 Neon DB에 `football_member` 테이블이 없는 경우 이 메시지가 보일 수 있습니다.
         </div>
       )}
 

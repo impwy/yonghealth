@@ -2,17 +2,17 @@ import type { FootballMember, GradeGroup, TeamResult, TeamScenario } from '@/typ
 
 export function getGradeGroup(grade: number): GradeGroup {
   switch (grade) {
-    case 1: return '1등급';
-    case 2: return '2등급';
-    case 3: return '3등급';
-    case 4: return '4등급';
-    case 5: return '5등급';
-    case 6: return '6등급';
-    default: return '6등급';
+    case 1: return '1티어';
+    case 2: return '2티어';
+    case 3: return '3티어';
+    case 4: return '4티어';
+    case 5: return '5티어';
+    case 6: return '6티어';
+    default: return '6티어';
   }
 }
 
-const GRADE_GROUP_ORDER: GradeGroup[] = ['1등급', '2등급', '3등급', '4등급', '5등급', '6등급'];
+const GRADE_GROUP_ORDER: GradeGroup[] = ['1티어', '2티어', '3티어', '4티어', '5티어', '6티어'];
 
 function shuffle<T>(array: T[]): T[] {
   const arr = [...array];

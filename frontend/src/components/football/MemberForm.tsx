@@ -51,12 +51,15 @@ export default function MemberForm({ members, onMemberAdded }: MemberFormProps) 
           </p>
           <h2 className="mt-1 text-base font-bold text-gray-900">회원 등록</h2>
           <p className="mt-1 text-sm text-gray-600">
-            이름과 등급만 입력하면 바로 편성 대상에 추가됩니다.
+            이름과 티어만 입력하면 바로 편성 대상에 추가됩니다.
           </p>
         </div>
-        <span className="football-chip rounded-full px-3 py-1 text-xs font-semibold">
-          총 {members.length}명
-        </span>
+        <div className="min-w-[86px] rounded-2xl border border-emerald-200 bg-white/85 px-3 py-2 text-center shadow-sm">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-football-700">
+            Roster
+          </p>
+          <p className="mt-1 text-sm font-bold text-gray-900">{members.length}명</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-5 flex flex-wrap gap-3 items-end">
@@ -71,14 +74,14 @@ export default function MemberForm({ members, onMemberAdded }: MemberFormProps) 
           />
         </div>
         <div className="w-28">
-          <label className="mb-1.5 block text-xs font-semibold text-gray-600">등급</label>
+          <label className="mb-1.5 block text-xs font-semibold text-gray-600">티어</label>
           <select
             value={grade}
             onChange={(e) => setGrade(Number(e.target.value))}
             className="w-full rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           >
             {[1, 2, 3, 4, 5, 6].map((g) => (
-              <option key={g} value={g}>{g}등급</option>
+              <option key={g} value={g}>{g}티어</option>
             ))}
           </select>
         </div>
@@ -94,7 +97,7 @@ export default function MemberForm({ members, onMemberAdded }: MemberFormProps) 
       <div className="mt-4 flex flex-wrap gap-2">
         {[1, 2, 3, 4, 5, 6].map((g) => (
           <span key={g} className="football-chip rounded-full px-2.5 py-1 text-[11px] font-semibold">
-            {g}등급 개별 편성
+            {g}티어 개별 편성
           </span>
         ))}
       </div>
