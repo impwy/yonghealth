@@ -25,6 +25,10 @@ public class DefaultExerciseSetService implements ExerciseSetUseCase {
     public ExerciseSetResponse create(Long exerciseId, ExerciseSetRequest request) {
         Exercise exercise = exerciseUseCase.getExercise(exerciseId);
 
+        if (exerciseSetRepository.existsByExerciseIdAndSetNumber(exerciseId, request.getSetNumber())) {
+            throw new IllegalStateException("이미 존재하는 세트 번호입니다: " + request.getSetNumber());
+        }
+
         ExerciseSet exerciseSet = ExerciseSet.builder()
                 .exercise(exercise)
                 .setNumber(request.getSetNumber())

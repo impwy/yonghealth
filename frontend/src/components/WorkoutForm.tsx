@@ -54,15 +54,13 @@ export default function WorkoutForm({ onSubmit, loading, initialDate }: WorkoutF
   };
 
   const addSet = (exerciseIndex: number) => {
-    const updated = [...exercises];
-    const sets = updated[exerciseIndex].sets;
-    sets.push({
-      setNumber: sets.length + 1,
-      weight: 0,
-      weightUnit: 'KG' as WeightUnit,
-      reps: 0,
+    setExercises(prev => {
+      const updated = prev.map((ex, i) => i === exerciseIndex
+        ? { ...ex, sets: [...ex.sets, { setNumber: ex.sets.length + 1, weight: 0, weightUnit: 'KG' as WeightUnit, reps: 0 }] }
+        : ex
+      );
+      return updated;
     });
-    setExercises(updated);
   };
 
   const removeSet = (exerciseIndex: number, setIndex: number) => {

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"exercise_id", "set_number"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ExerciseSet extends BaseTimeEntity {
@@ -31,6 +32,9 @@ public class ExerciseSet extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Integer reps;
+
+    @Version
+    private Long version;
 
     @Builder
     public ExerciseSet(Exercise exercise, Integer setNumber, Double weight, WeightUnit weightUnit, Integer reps) {
