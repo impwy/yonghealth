@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/ui/Navbar";
 import BottomNav from "@/components/ui/BottomNav";
+import AppSidebar from "@/components/ui/AppSidebar";
 import Providers from "@/components/Providers";
 
 const geistSans = Geist({
@@ -40,9 +41,12 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gray-50 text-gray-900 env-safe">
         <Providers>
           <Navbar />
-          <main className="flex-1 max-w-4xl mx-auto w-full px-3 py-4 md:px-4 md:py-6">
-            {children}
-          </main>
+          <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+            <AppSidebar />
+            <main className="flex-1 max-w-4xl mx-auto w-full px-3 py-4 md:px-4 md:py-6 overflow-y-auto">
+              {children}
+            </main>
+          </div>
           <BottomNav />
         </Providers>
       </body>

@@ -11,6 +11,9 @@ export default function BottomNav() {
   const { remainingSeconds, isRunning, isComplete } = useTimer();
   const [showTimer, setShowTimer] = useState(false);
 
+  // 풋볼 페이지에서는 BottomNav 숨김
+  if (pathname.startsWith('/football')) return null;
+
   const timerActive = isRunning || remainingSeconds > 0;
   const timerMin = Math.floor(remainingSeconds / 60);
   const timerSec = remainingSeconds % 60;

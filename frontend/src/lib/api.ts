@@ -12,13 +12,18 @@ import type {
   ExerciseCatalog,
   ExerciseCatalogSearchResponse,
   BodyPart,
+  FootballMember,
+  FootballMemberRequest,
 } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
+  const headers: HeadersInit = options?.body
+    ? { 'Content-Type': 'application/json' }
+    : {};
   const res = await fetch(`${API_BASE}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     ...options,
   });
 
@@ -106,6 +111,20 @@ export const exerciseCatalogApi = {
 
   search: (query: string) =>
     fetchApi<ExerciseCatalogSearchResponse>(`/api/exercise-catalog/search?query=${encodeURIComponent(query)}`),
+};
+
+// Football API
+export const footballApi = {
+  getMembers: () => fetchApi<FootballMember[]>('/api/football/members'),
+
+  createMember: (data: FootballMemberRequest) =>
+    fetchApi<FootballMember>('/api/football/members', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  deleteMember: (id: number) =>
+    fetchApi<void>(`/api/football/members/${id}`, { method: 'DELETE' }),
 };
 
 // Weight Conversion API

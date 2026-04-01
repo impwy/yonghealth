@@ -105,3 +105,13 @@
 - [x] 버튼 계층 색상 통일 (Primary/Secondary/Danger)
 - [x] 전체 blue → primary 테마 통일
 - [x] `npx next build` 통과
+
+### Phase 13: 풋볼 화면 추가 ✅
+- [x] 공통 레이아웃에 헬스/풋볼 전환용 사이드바 추가
+- [x] `/football` 페이지 및 풋볼 전용 화면 구성
+- [x] 풋볼 회원 등록/목록/삭제 UI 구현
+- [x] 풋볼 회원 API 구현 (조회, 등록, 삭제)
+- [x] 등급별 랜덤 팀 생성 UI 구현 (1~6등급 개별 분배)
+- [x] 한 번에 3개의 랜덤 편성안 표시
+- [x] `./gradlew test` 통과
+- [x] `cd frontend && npm run build` 통과

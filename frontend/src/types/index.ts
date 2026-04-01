@@ -104,3 +104,27 @@ export interface ErrorResponse {
   message: string;
   timestamp: string;
 }
+
+// Football types
+export interface FootballMember {
+  id: number;
+  name: string;
+  grade: number;
+}
+
+export interface FootballMemberRequest {
+  name: string;
+  grade: number;
+}
+
+export type GradeGroup = '1등급' | '2등급' | '3등급' | '4등급' | '5등급' | '6등급';
+
+export interface TeamResult {
+  teamNumber: number;
+  members: FootballMember[];
+}
+
+export interface TeamScenario {
+  id: number;
+  teams: TeamResult[];
+}
