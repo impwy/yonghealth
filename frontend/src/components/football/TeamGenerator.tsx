@@ -40,9 +40,9 @@ export default function TeamGenerator({
 
   return (
     <section className="space-y-4">
-      <div className="overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm">
-        <div className="bg-[linear-gradient(135deg,#166534_0%,#15803d_45%,#166534_100%)] px-4 py-4 text-white">
-          <div className="flex items-start justify-between gap-3">
+      <div className="football-panel overflow-hidden rounded-2xl">
+        <div className="football-shell px-4 py-4 text-white md:px-5">
+          <div className="relative z-10 flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-100">
                 Match Builder
@@ -52,22 +52,22 @@ export default function TeamGenerator({
                 등급별로 섞은 뒤 팀별로 균형 있게 나눕니다.
               </p>
             </div>
-            <div className="rounded-xl bg-white/12 px-3 py-2 text-right backdrop-blur-sm">
+            <div className="football-panel-dark rounded-xl px-3 py-2 text-right">
               <p className="text-[11px] text-emerald-100">생성 시나리오</p>
               <p className="text-xl font-bold">3안</p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-4 p-4">
+        <div className="space-y-4 p-4 md:p-5">
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-            <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
               <p className="text-sm font-semibold text-emerald-900">편성 규칙</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {['1등급', '2등급', '3등급', '4등급', '5등급', '6등급'].map((group) => (
                   <span
                     key={group}
-                    className="rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-xs font-medium text-emerald-800"
+                    className="football-chip rounded-full px-2.5 py-1 text-xs font-medium"
                   >
                     {group}
                   </span>
@@ -75,6 +75,7 @@ export default function TeamGenerator({
               </div>
               <p className="mt-3 text-xs leading-5 text-emerald-800/80">
                 각 등급 안에서 먼저 무작위로 섞고, 시작 팀 위치를 바꿔가며 분배합니다.
+                3등급과 4등급도 서로 합치지 않고 독립적으로 처리합니다.
               </p>
             </div>
 
@@ -106,7 +107,7 @@ export default function TeamGenerator({
                 type="button"
                 onClick={onGenerate}
                 disabled={!canGenerate}
-                className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 active:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+                className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center rounded-xl bg-football-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-football-800 active:bg-football-900 disabled:cursor-not-allowed disabled:bg-gray-300"
               >
                 랜덤 편성 생성
               </button>
@@ -127,9 +128,9 @@ export default function TeamGenerator({
               {scenarios.map((scenario) => (
                 <article
                   key={scenario.id}
-                  className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+                  className="football-pitch-card overflow-hidden rounded-2xl"
                 >
-                  <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
+                  <div className="flex items-center justify-between border-b border-emerald-100 bg-emerald-50/70 px-4 py-3">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
                         Scenario {scenario.id}
@@ -164,7 +165,7 @@ export default function TeamGenerator({
                             >
                               <div>
                                 <p className="text-sm font-semibold text-gray-900">{member.name}</p>
-                                <p className="text-[11px] text-gray-500">{getGradeGroup(member.grade)}</p>
+                                <p className="text-[11px] text-gray-500">{getGradeGroup(member.grade)} 풀</p>
                               </div>
                               <span className="rounded-full bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-700">
                                 {member.grade}등급

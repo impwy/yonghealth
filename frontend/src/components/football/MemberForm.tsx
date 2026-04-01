@@ -43,25 +43,39 @@ export default function MemberForm({ members, onMemberAdded }: MemberFormProps) 
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-      <h2 className="text-sm font-semibold text-gray-700 mb-3">회원 등록</h2>
-      <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 items-end">
-        <div className="flex-1 min-w-[120px]">
-          <label className="block text-xs text-gray-500 mb-1">이름</label>
+    <section className="football-panel rounded-2xl p-4 md:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-football-700">
+            Player Desk
+          </p>
+          <h2 className="mt-1 text-base font-bold text-gray-900">회원 등록</h2>
+          <p className="mt-1 text-sm text-gray-600">
+            이름과 등급만 입력하면 바로 편성 대상에 추가됩니다.
+          </p>
+        </div>
+        <span className="football-chip rounded-full px-3 py-1 text-xs font-semibold">
+          총 {members.length}명
+        </span>
+      </div>
+
+      <form onSubmit={handleSubmit} className="mt-5 flex flex-wrap gap-3 items-end">
+        <div className="flex-1 min-w-[160px]">
+          <label className="mb-1.5 block text-xs font-semibold text-gray-600">이름</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="이름 입력"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           />
         </div>
-        <div className="w-24">
-          <label className="block text-xs text-gray-500 mb-1">등급</label>
+        <div className="w-28">
+          <label className="mb-1.5 block text-xs font-semibold text-gray-600">등급</label>
           <select
             value={grade}
             onChange={(e) => setGrade(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           >
             {[1, 2, 3, 4, 5, 6].map((g) => (
               <option key={g} value={g}>{g}등급</option>
@@ -71,12 +85,21 @@ export default function MemberForm({ members, onMemberAdded }: MemberFormProps) 
         <button
           type="submit"
           disabled={submitting}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 active:bg-green-800 transition disabled:opacity-50 min-h-[40px]"
+          className="min-h-[44px] rounded-xl bg-football-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-football-800 active:bg-football-900 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           {submitting ? '등록 중...' : '등록'}
         </button>
       </form>
-      {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
-    </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {[1, 2, 3, 4, 5, 6].map((g) => (
+          <span key={g} className="football-chip rounded-full px-2.5 py-1 text-[11px] font-semibold">
+            {g}등급 개별 편성
+          </span>
+        ))}
+      </div>
+
+      {error && <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-600">{error}</p>}
+    </section>
   );
 }
