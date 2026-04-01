@@ -28,8 +28,25 @@ async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
   });
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: '요청에 실패했습니다' }));
-    throw new Error(error.message);
+    const contentType = res.headers.get('content-type') ?? '';
+
+    if (contentType.includes('application/json')) {
+      const error = await res.json().catch(() => null);
+      if (error?.message) {
+        throw new Error(error.message);
+      }
+    } else {
+      const text = await res.text().catch(() => '');
+      if (text.trim()) {
+        throw new Error(text.trim());
+      }
+    }
+
+    if (res.status === 404) {
+      throw new Error('요청한 API를 찾을 수 없습니다');
+    }
+
+    throw new Error(`요청에 실패했습니다 (${res.status})`);
   }
 
   if (res.status === 204) return undefined as T;

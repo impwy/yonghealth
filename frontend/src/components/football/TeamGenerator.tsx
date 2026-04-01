@@ -37,7 +37,7 @@ export default function TeamGenerator({
   onGenerate,
 }: TeamGeneratorProps) {
   const [teamCountInput, setTeamCountInput] = useState(String(teamCount));
-  const maxTeamCount = Math.max(members.length, 2);
+  const maxTeamCount = Math.max(members.length, teamCount, 12);
   const validationMessage = getValidationMessage(members.length, teamCount);
   const canGenerate = validationMessage === '';
 
@@ -46,13 +46,19 @@ export default function TeamGenerator({
   }, [teamCount]);
 
   const commitTeamCount = (rawValue: string) => {
-    const parsed = Number(rawValue);
+    const trimmedValue = rawValue.trim();
+    if (!trimmedValue) {
+      setTeamCountInput(String(teamCount));
+      return teamCount;
+    }
+
+    const parsed = Number(trimmedValue);
     if (!Number.isFinite(parsed)) {
       setTeamCountInput(String(teamCount));
       return teamCount;
     }
 
-    const normalized = Math.min(Math.max(Math.trunc(parsed), 2), maxTeamCount);
+    const normalized = Math.max(Math.trunc(parsed), 2);
     onTeamCountChange(normalized);
     setTeamCountInput(String(normalized));
     return normalized;
@@ -73,19 +79,19 @@ export default function TeamGenerator({
     <section className="space-y-4">
       <div className="football-panel overflow-hidden rounded-2xl">
         <div className="football-shell px-4 py-4 text-white md:px-5">
-          <div className="relative z-10 flex items-start justify-between gap-3">
+          <div className="relative z-10 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-100">
                 Match Builder
               </p>
-              <h2 className="mt-1 text-lg font-bold">랜덤 팀 생성</h2>
-              <p className="mt-1 text-sm text-emerald-100">
-                등급별로 섞은 뒤 팀별로 균형 있게 나눕니다.
+              <h2 className="mt-1 break-keep text-lg font-bold">랜덤 팀 생성</h2>
+              <p className="mt-1 max-w-xl break-keep text-sm leading-6 text-emerald-100">
+                등급별로 섞은 뒤 팀별로 균형 있게 분배합니다.
               </p>
             </div>
-            <div className="football-panel-dark rounded-xl px-3 py-2 text-right">
-              <p className="text-[11px] text-emerald-100">생성 시나리오</p>
-              <p className="text-xl font-bold">3안</p>
+            <div className="football-panel-dark self-start rounded-xl px-3 py-2 text-right md:min-w-[132px]">
+              <p className="whitespace-nowrap text-[11px] text-emerald-100">생성안</p>
+              <p className="whitespace-nowrap text-xl font-bold">3개</p>
             </div>
           </div>
         </div>
@@ -128,7 +134,6 @@ export default function TeamGenerator({
                   id="team-count"
                   type="number"
                   min={2}
-                  max={maxTeamCount}
                   value={teamCountInput}
                   onChange={(e) => setTeamCountInput(e.target.value)}
                   onBlur={(e) => commitTeamCount(e.target.value)}
@@ -152,7 +157,7 @@ export default function TeamGenerator({
                 <span className="shrink-0 text-sm font-medium text-gray-500">팀</span>
               </div>
               <p className="mt-2 text-xs text-gray-500">
-                현재 회원 {members.length}명 기준으로 최소 2팀부터 생성할 수 있습니다.
+                원하는 팀 수를 먼저 정해둘 수 있고, 회원 수보다 많으면 생성 시 안내합니다.
               </p>
               {validationMessage && (
                 <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
