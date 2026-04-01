@@ -34,11 +34,16 @@ com.yong.yonghealth/
 - **Cascade 삭제**: Workout → Exercise → ExerciseSet
 
 ## 테스트 컨벤션
+- **개발 방식**: 기본 원칙은 TDD (`Red → Green → Refactor`) 이다.
+- 구현 변경 전 먼저 실패하는 테스트를 작성하고, 테스트를 통과시키는 최소 구현 후 리팩토링한다.
+- 새 기능/버그 수정은 테스트 없이 머지하지 않는다.
 - **Service 테스트**: `@SpringBootTest` + `@Transactional` + H2 인메모리 DB 사용
-- **Domain 테스트**: `@SpringBootTest` + `@Transactional` — 엔티티 생성/수정, Cascade, 감사 필드 검증
+- **Domain 로직 테스트**: 순수 JUnit 우선. 영속성/Cascade/감사 필드 검증은 `@SpringBootTest` + `@Transactional`
 - **Controller 테스트**: `@WebMvcTest` + `@MockitoBean` (Spring Boot 4.x)
+- **Global 테스트**: `GlobalExceptionHandler`, `WebConfig`, initializer, util을 각각 검증한다.
+- **E2E 테스트**: 핵심 사용자 흐름은 `@SpringBootTest` + `@AutoConfigureMockMvc` 기반 API E2E를 반드시 포함한다.
 - **유틸리티 테스트**: 순수 JUnit (Spring 컨텍스트 불필요)
-- 구현마다 테스트를 작성하고 `./gradlew test`로 검증한 후 커밋
+- 구현마다 테스트를 작성하고 `./gradlew test`로 검증한 후 커밋한다.
 
 ### Spring Boot 4.x 테스트 API 변경사항
 - `@MockBean` → `@MockitoBean` (`org.springframework.test.context.bean.override.mockito.MockitoBean`)
@@ -100,6 +105,8 @@ main          ← 운영 배포 (자동 배포, 직접 커밋 금지)
 ## 작업 규칙
 - 구현 전 반드시 **explore 에이전트**를 사용하여 기존 코드베이스를 탐색한 후 작업
 - 각 Phase 완료 시 **빌드/구조 검증** 수행
+- 기능 추가/수정 시 `service`, `global`, `domain`, `controller` 전반의 테스트 영향을 같이 검토한다.
+- 핵심 도메인 규칙은 domain logic test로 고정하고, 주요 사용자 시나리오는 E2E로 회귀 방지한다.
 - `task.md`에 체크박스로 구현 현황을 업데이트
 - 기능/버그 수정이 완료되면 관련 문서(`spec.md`, `plan.md`, `fix.md`, `insight.md`)를 함께 동기화
 - 프로젝트 운영 규칙이 바뀌면 `CLAUDE.md`와 `AGENTS.md`를 같이 수정
