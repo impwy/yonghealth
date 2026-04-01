@@ -23,6 +23,17 @@
   /* Border */
   --border: #e2e8f0;
   --border-light: #f1f5f9;
+
+  /* Football */
+  --football-950: #052e16;
+  --football-900: #14532d;
+  --football-800: #166534;
+  --football-700: #15803d;
+  --football-600: #16a34a;
+  --football-500: #22c55e;
+  --football-200: #bbf7d0;
+  --football-100: #dcfce7;
+  --football-50: #f0fdf4;
 }
 
 @theme inline {
@@ -40,6 +51,15 @@
   --color-warning: var(--warning);
   --color-border: var(--border);
   --color-border-light: var(--border-light);
+  --color-football-950: var(--football-950);
+  --color-football-900: var(--football-900);
+  --color-football-800: var(--football-800);
+  --color-football-700: var(--football-700);
+  --color-football-600: var(--football-600);
+  --color-football-500: var(--football-500);
+  --color-football-200: var(--football-200);
+  --color-football-100: var(--football-100);
+  --color-football-50: var(--football-50);
   --font-sans: var(--font-geist-sans);
 }
 
@@ -69,4 +89,61 @@ body {
   input, select, textarea {
     font-size: 16px;
   }
+}
+
+.football-shell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(187, 247, 208, 0.8);
+  background:
+    radial-gradient(circle at top right, rgba(74, 222, 128, 0.2), transparent 32%),
+    linear-gradient(135deg, rgba(20, 83, 45, 0.98), rgba(22, 101, 52, 0.94) 46%, rgba(21, 128, 61, 0.96));
+  box-shadow: 0 24px 48px rgba(5, 46, 22, 0.18);
+}
+
+.football-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, transparent 0%, transparent 49.5%, rgba(255,255,255,0.18) 49.5%, rgba(255,255,255,0.18) 50.5%, transparent 50.5%, transparent 100%),
+    radial-gradient(circle at center, transparent 0 10%, rgba(255,255,255,0.18) 10% 10.7%, transparent 10.7% 100%),
+    repeating-linear-gradient(to bottom, rgba(255,255,255,0.06) 0 1px, transparent 1px 52px);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.football-panel {
+  border: 1px solid rgba(187, 247, 208, 0.9);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240, 253, 244, 0.94));
+  box-shadow: 0 14px 30px rgba(22, 101, 52, 0.08);
+}
+
+.football-panel-dark {
+  border: 1px solid rgba(187, 247, 208, 0.24);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+  backdrop-filter: blur(10px);
+}
+
+.football-chip {
+  border: 1px solid rgba(187, 247, 208, 0.9);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--football-900);
+}
+
+.football-pitch-card {
+  border: 1px solid rgba(167, 243, 208, 0.6);
+  background:
+    radial-gradient(circle at top, rgba(187, 247, 208, 0.4), rgba(255,255,255,0.98) 58%),
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(240, 253, 244, 0.9));
+  box-shadow: 0 12px 28px rgba(22, 101, 52, 0.08);
+}
+
+.football-member-card {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248, 250, 252, 0.98));
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
 }
