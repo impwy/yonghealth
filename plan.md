@@ -155,7 +155,7 @@ frontend/src/
 2. `/football` 페이지 추가
 3. AppSidebar 기반 헬스/풋볼 전환 구조 추가
 4. 회원 등록/목록/삭제 UI 구현
-5. 등급별 랜덤 팀 편성 로직 추가
+5. 티어별 랜덤 팀 편성 로직 추가
 6. 3개 시나리오 비교 UI 추가
 7. 풋볼 전용 테마 CSS 적용
 
@@ -164,6 +164,14 @@ frontend/src/
 2. 문자열 입력 상태와 실제 팀 수 상태를 분리
 3. blur/Enter 시점에만 정규화
 4. `+/-` 스텝 버튼 추가
+
+### Phase 14: 풋볼 편성 규칙/모바일 UX 정비
+1. 팀 편성 로직을 총 인원 기준 균등 분배 방식으로 변경
+2. `10명 -> 5:5`, `9명 -> 5:4`, `12명/3팀 -> 4:4:4` 같은 목표 인원 수 계산 로직 추가
+3. 티어별 셔플은 유지하되, 이미 목표 인원이 찬 팀은 건너뛰도록 조정
+4. 회원 등록 폼을 팝업 모달로 변경
+5. 회원 목록을 요약/상세 토글 구조로 변경
+6. 회원 추가/삭제 후 기존 편성안 자동 초기화
 
 ---
 
@@ -191,3 +199,9 @@ frontend/src/
 ./gradlew bootRun --args='--server.port=8081 --spring.datasource.url=jdbc:mysql://127.0.0.1:3306/yonghealth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul'
 cd frontend && NEXT_PUBLIC_API_URL=http://127.0.0.1:8081 npm run dev
 ```
+
+### 풋볼 화면 확인 포인트
+- 풋볼 Navbar 브랜드는 `SundayFC`로 보여야 한다.
+- 풋볼 모드에서는 상단 타이머와 `새 운동 기록` 버튼이 없어야 한다.
+- 회원 목록 기본 상태는 요약 뷰여야 하며, 모바일에서 등록 팝업이 목록 영역 높이를 밀어내면 안 된다.
+- 팀 생성 전 예상 인원 수가 총원 기준 균등하게 보여야 한다.

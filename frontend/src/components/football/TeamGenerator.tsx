@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { FootballMember, TeamScenario } from '@/types';
-import { getGradeGroup } from '@/lib/teamGenerator';
+import { getBalancedTeamSizes, getGradeGroup } from '@/lib/teamGenerator';
 import EmptyState from '@/components/ui/EmptyState';
 
 interface TeamGeneratorProps {
@@ -40,6 +40,7 @@ export default function TeamGenerator({
   const maxTeamCount = Math.max(members.length, teamCount, 12);
   const validationMessage = getValidationMessage(members.length, teamCount);
   const canGenerate = validationMessage === '';
+  const balancedTeamSizes = getBalancedTeamSizes(members.length, teamCount);
 
   useEffect(() => {
     setTeamCountInput(String(teamCount));
@@ -86,7 +87,7 @@ export default function TeamGenerator({
               </p>
               <h2 className="mt-1 break-keep text-lg font-bold">랜덤 팀 생성</h2>
               <p className="mt-1 max-w-xl break-keep text-sm leading-6 text-emerald-100">
-                티어별로 섞은 뒤 팀별로 균형 있게 분배합니다.
+                티어별로 섞은 뒤 팀 인원 수가 최대한 균등해지도록 분배합니다.
               </p>
             </div>
             <div className="football-panel-dark self-start rounded-xl px-3 py-2 text-right md:min-w-[132px]">
@@ -111,8 +112,8 @@ export default function TeamGenerator({
                 ))}
               </div>
               <p className="mt-3 text-xs leading-5 text-emerald-800/80">
-                각 티어 안에서 먼저 무작위로 섞고, 시작 팀 위치를 바꿔가며 분배합니다.
-                3티어와 4티어도 서로 합치지 않고 독립적으로 처리합니다.
+                각 티어 안에서 먼저 무작위로 섞고, 10명이면 5대5, 9명이면 5대4처럼
+                전체 인원 수가 최대한 균등해지도록 분배합니다.
               </p>
             </div>
 
@@ -159,6 +160,11 @@ export default function TeamGenerator({
               <p className="mt-2 text-xs text-gray-500">
                 원하는 팀 수를 먼저 정해둘 수 있고, 회원 수보다 많으면 생성 시 안내합니다.
               </p>
+              {balancedTeamSizes.length > 0 && (
+                <p className="mt-2 text-xs font-medium text-football-800">
+                  현재 {members.length}명 기준 예상 인원: {balancedTeamSizes.map((size) => `${size}명`).join(' / ')}
+                </p>
+              )}
               {validationMessage && (
                 <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
                   {validationMessage}
