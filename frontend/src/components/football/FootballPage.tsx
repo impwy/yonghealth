@@ -39,8 +39,8 @@ export default function FootballPage() {
     setMembers((prev) => prev.filter((m) => m.id !== id));
   };
 
-  const handleGenerate = () => {
-    const result = generateScenarios(members, teamCount, 3);
+  const handleGenerate = (nextTeamCount: number) => {
+    const result = generateScenarios(members, nextTeamCount, 3);
     setScenarios(result);
   };
 

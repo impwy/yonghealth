@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import type { FootballMember, TeamScenario } from '@/types';
 import { getGradeGroup } from '@/lib/teamGenerator';
 import EmptyState from '@/components/ui/EmptyState';
@@ -9,7 +10,7 @@ interface TeamGeneratorProps {
   teamCount: number;
   onTeamCountChange: (teamCount: number) => void;
   scenarios: TeamScenario[];
-  onGenerate: () => void;
+  onGenerate: (teamCount: number) => void;
 }
 
 function getValidationMessage(memberCount: number, teamCount: number) {
@@ -35,8 +36,38 @@ export default function TeamGenerator({
   scenarios,
   onGenerate,
 }: TeamGeneratorProps) {
+  const [teamCountInput, setTeamCountInput] = useState(String(teamCount));
+  const maxTeamCount = Math.max(members.length, 2);
   const validationMessage = getValidationMessage(members.length, teamCount);
   const canGenerate = validationMessage === '';
+
+  useEffect(() => {
+    setTeamCountInput(String(teamCount));
+  }, [teamCount]);
+
+  const commitTeamCount = (rawValue: string) => {
+    const parsed = Number(rawValue);
+    if (!Number.isFinite(parsed)) {
+      setTeamCountInput(String(teamCount));
+      return teamCount;
+    }
+
+    const normalized = Math.min(Math.max(Math.trunc(parsed), 2), maxTeamCount);
+    onTeamCountChange(normalized);
+    setTeamCountInput(String(normalized));
+    return normalized;
+  };
+
+  const handleGenerateClick = () => {
+    const nextTeamCount = commitTeamCount(teamCountInput);
+    onGenerate(nextTeamCount);
+  };
+
+  const handleStepChange = (delta: number) => {
+    const nextTeamCount = Math.min(Math.max(teamCount + delta, 2), maxTeamCount);
+    onTeamCountChange(nextTeamCount);
+    setTeamCountInput(String(nextTeamCount));
+  };
 
   return (
     <section className="space-y-4">
@@ -84,15 +115,40 @@ export default function TeamGenerator({
                 팀 수
               </label>
               <div className="mt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleStepChange(-1)}
+                  disabled={teamCount <= 2}
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white text-lg font-semibold text-gray-700 transition hover:border-emerald-300 hover:text-football-800 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="팀 수 감소"
+                >
+                  -
+                </button>
                 <input
                   id="team-count"
                   type="number"
                   min={2}
-                  max={Math.max(members.length, 2)}
-                  value={teamCount}
-                  onChange={(e) => onTeamCountChange(Number(e.target.value) || 2)}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-base font-semibold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  max={maxTeamCount}
+                  value={teamCountInput}
+                  onChange={(e) => setTeamCountInput(e.target.value)}
+                  onBlur={(e) => commitTeamCount(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      commitTeamCount(teamCountInput);
+                    }
+                  }}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-center text-base font-semibold text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                 />
+                <button
+                  type="button"
+                  onClick={() => handleStepChange(1)}
+                  disabled={teamCount >= maxTeamCount}
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gray-300 bg-white text-lg font-semibold text-gray-700 transition hover:border-emerald-300 hover:text-football-800 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label="팀 수 증가"
+                >
+                  +
+                </button>
                 <span className="shrink-0 text-sm font-medium text-gray-500">팀</span>
               </div>
               <p className="mt-2 text-xs text-gray-500">
@@ -105,7 +161,7 @@ export default function TeamGenerator({
               )}
               <button
                 type="button"
-                onClick={onGenerate}
+                onClick={handleGenerateClick}
                 disabled={!canGenerate}
                 className="mt-4 inline-flex min-h-[44px] w-full items-center justify-center rounded-xl bg-football-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-football-800 active:bg-football-900 disabled:cursor-not-allowed disabled:bg-gray-300"
               >
@@ -120,7 +176,7 @@ export default function TeamGenerator({
                 icon="🥅"
                 title="편성 결과가 아직 없습니다"
                 description="회원을 등록하고 팀 수를 정한 뒤 랜덤 편성을 생성하세요."
-                action={canGenerate ? { label: '첫 편성 만들기', onClick: onGenerate } : undefined}
+                action={canGenerate ? { label: '첫 편성 만들기', onClick: handleGenerateClick } : undefined}
               />
             </div>
           ) : (
