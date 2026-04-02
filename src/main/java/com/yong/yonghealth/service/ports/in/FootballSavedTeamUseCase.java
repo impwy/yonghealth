@@ -10,4 +10,6 @@ public interface FootballSavedTeamUseCase {
     List<FootballSavedTeamResponse> findAll();
 
     FootballSavedTeamResponse create(FootballSavedTeamRequest request);
+
+    void delete(Long id);
 }

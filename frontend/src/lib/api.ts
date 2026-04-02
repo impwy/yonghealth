@@ -158,6 +158,9 @@ export const footballApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  deleteSavedTeam: (id: number) =>
+    fetchApi<void>(`/api/football/saved-teams/${id}`, { method: 'DELETE' }),
 };
 
 // Weight Conversion API
