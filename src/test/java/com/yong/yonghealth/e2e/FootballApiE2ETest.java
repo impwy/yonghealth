@@ -117,6 +117,21 @@ class FootballApiE2ETest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].teamCount").value(2))
                 .andExpect(jsonPath("$[0].teams[1].members[0].memberName").value("최민수"));
+
+        long savedTeamId = objectMapper.readTree(
+                mockMvc.perform(get("/api/football/saved-teams"))
+                        .andReturn().getResponse().getContentAsString()
+        ).get(0).get("id").asLong();
+
+        mockMvc.perform(delete("/api/football/saved-teams/{id}", savedTeamId))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/football/saved-teams"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        mockMvc.perform(delete("/api/football/saved-teams/{id}", savedTeamId))
+                .andExpect(status().isNotFound());
     }
 
     private long createMember(String name, int grade) throws Exception {

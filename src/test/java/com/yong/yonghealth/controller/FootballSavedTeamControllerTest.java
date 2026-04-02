@@ -15,8 +15,13 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -108,5 +113,25 @@ class FootballSavedTeamControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("일요 2팀"))
                 .andExpect(jsonPath("$.teamCount").value(2));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/football/saved-teams/{id} - 보관 팀 삭제")
+    void delete_success() throws Exception {
+        willDoNothing().given(footballSavedTeamUseCase).delete(1L);
+
+        mockMvc.perform(delete("/api/football/saved-teams/{id}", 1L))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/football/saved-teams/{id} - 존재하지 않는 팀 삭제 시 404")
+    void delete_notFound() throws Exception {
+        willThrow(new EntityNotFoundException("보관된 팀을 찾을 수 없습니다. id=999"))
+                .given(footballSavedTeamUseCase).delete(999L);
+
+        mockMvc.perform(delete("/api/football/saved-teams/{id}", 999L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("보관된 팀을 찾을 수 없습니다. id=999"));
     }
 }

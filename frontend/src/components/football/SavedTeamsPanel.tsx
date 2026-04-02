@@ -5,6 +5,8 @@ import type { FootballSavedTeam } from '@/types';
 
 interface SavedTeamsPanelProps {
   savedTeams: FootballSavedTeam[];
+  onDelete: (id: number) => void;
+  deletingId: number | null;
 }
 
 function formatCreatedAt(createdAt: string) {
@@ -21,7 +23,7 @@ function formatCreatedAt(createdAt: string) {
   }).format(date);
 }
 
-export default function SavedTeamsPanel({ savedTeams }: SavedTeamsPanelProps) {
+export default function SavedTeamsPanel({ savedTeams, onDelete, deletingId }: SavedTeamsPanelProps) {
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
 
   const toggleExpanded = (id: number) => {
@@ -76,13 +78,23 @@ export default function SavedTeamsPanel({ savedTeams }: SavedTeamsPanelProps) {
                       {formatCreatedAt(savedTeam.createdAt)} · {savedTeam.teamCount}팀
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleExpanded(savedTeam.id)}
-                    className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-football-800 transition hover:border-emerald-300 hover:bg-emerald-50"
-                  >
-                    {expanded ? '편성 접기' : '편성 보기'}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpanded(savedTeam.id)}
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-football-800 transition hover:border-emerald-300 hover:bg-emerald-50"
+                    >
+                      {expanded ? '편성 접기' : '편성 보기'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDelete(savedTeam.id)}
+                      disabled={deletingId === savedTeam.id}
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {deletingId === savedTeam.id ? '삭제 중...' : '삭제'}
+                    </button>
+                  </div>
                 </div>
 
                 {expanded && (

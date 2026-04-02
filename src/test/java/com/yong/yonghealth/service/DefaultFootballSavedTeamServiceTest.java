@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -99,5 +101,40 @@ class DefaultFootballSavedTeamServiceTest {
         assertThatThrownBy(() -> footballSavedTeamUseCase.create(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("팀 번호는 중복될 수 없습니다");
+    }
+
+    @Test
+    @DisplayName("보관된 팀을 삭제한다")
+    void delete() {
+        FootballSavedTeamResponse created = footballSavedTeamUseCase.create(
+                FootballSavedTeamRequest.builder()
+                        .name("삭제 대상 팀")
+                        .teams(List.of(
+                                FootballSavedTeamRequest.TeamRequest.builder()
+                                        .teamNumber(1)
+                                        .members(List.of(
+                                                FootballSavedTeamRequest.MemberRequest.builder()
+                                                        .memberId(1L).memberName("A").memberGrade(1).build()
+                                        )).build(),
+                                FootballSavedTeamRequest.TeamRequest.builder()
+                                        .teamNumber(2)
+                                        .members(List.of(
+                                                FootballSavedTeamRequest.MemberRequest.builder()
+                                                        .memberId(2L).memberName("B").memberGrade(2).build()
+                                        )).build()
+                        )).build()
+        );
+
+        footballSavedTeamUseCase.delete(created.getId());
+
+        assertThat(footballSavedTeamRepository.findById(created.getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 보관 팀 삭제 시 EntityNotFoundException")
+    void delete_notFound() {
+        assertThatThrownBy(() -> footballSavedTeamUseCase.delete(999L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("보관된 팀을 찾을 수 없습니다");
     }
 }

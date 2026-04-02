@@ -151,3 +151,15 @@
 - [x] 저장 팀 스냅샷용 Neon SQL 문안 정리
 - [x] `./gradlew test` 통과
 - [x] `cd frontend && npm run build` 통과
+
+### Phase 17: 보관 팀 삭제 기능 ✅
+- [x] `FootballSavedTeamUseCase`에 `delete(Long id)` 메서드 추가
+- [x] `DefaultFootballSavedTeamService`에 삭제 구현 (EntityNotFoundException 처리)
+- [x] `FootballSavedTeamController`에 `DELETE /{id}` 엔드포인트 추가
+- [x] Controller/Service/E2E 테스트 작성 및 통과
+- [x] 프론트엔드 API 클라이언트에 `deleteSavedTeam` 추가
+- [x] `SavedTeamsPanel`에 삭제 버튼 및 로딩 상태 추가
+- [x] `FootballPage`에 삭제 핸들러 (confirm 대화상자 포함) 추가
+- [x] `spec.md` API 명세 업데이트
+- [x] `./gradlew test` 통과
+- [x] TypeScript 타입 체크 통과

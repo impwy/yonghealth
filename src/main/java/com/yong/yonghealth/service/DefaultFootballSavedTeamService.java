@@ -6,6 +6,7 @@ import com.yong.yonghealth.dto.FootballSavedTeamRequest;
 import com.yong.yonghealth.dto.FootballSavedTeamResponse;
 import com.yong.yonghealth.repository.FootballSavedTeamRepository;
 import com.yong.yonghealth.service.ports.in.FootballSavedTeamUseCase;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,14 @@ public class DefaultFootballSavedTeamService implements FootballSavedTeamUseCase
         }
 
         return FootballSavedTeamResponse.from(footballSavedTeamRepository.save(savedTeam));
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        FootballSavedTeam savedTeam = footballSavedTeamRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("보관된 팀을 찾을 수 없습니다. id=" + id));
+        footballSavedTeamRepository.delete(savedTeam);
     }
 
     private void validateTeams(FootballSavedTeamRequest request) {
