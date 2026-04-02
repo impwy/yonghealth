@@ -12,6 +12,7 @@ interface SetTableProps {
 
 export default function SetTable({ exerciseId, sets, onUpdate }: SetTableProps) {
   const [adding, setAdding] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<ExerciseSetRequest>({
     setNumber: sets.length + 1,
@@ -21,10 +22,18 @@ export default function SetTable({ exerciseId, sets, onUpdate }: SetTableProps) 
   });
 
   const handleAdd = async () => {
-    await exerciseSetApi.create(exerciseId, form);
-    setAdding(false);
-    setForm({ setNumber: sets.length + 2, weight: 0, weightUnit: 'KG', reps: 0 });
-    onUpdate();
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await exerciseSetApi.create(exerciseId, form);
+      setAdding(false);
+      setForm({ setNumber: sets.length + 2, weight: 0, weightUnit: 'KG', reps: 0 });
+      onUpdate();
+    } catch {
+      // 409 Conflict 등 — 무시 (이미 추가됨)
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleUpdate = async (id: number) => {
@@ -100,7 +109,7 @@ export default function SetTable({ exerciseId, sets, onUpdate }: SetTableProps) 
           <input type="number" placeholder="횟수" value={form.reps || ''} onChange={(e) => setForm({ ...form, reps: +e.target.value })} className={`${inputClass} w-14`} />
           <span className="text-xs text-gray-400">회</span>
           <div className="flex gap-1 ml-auto flex-shrink-0">
-            <button onClick={handleAdd} className="text-xs text-primary-600 font-semibold min-h-[36px] px-1.5">추가</button>
+            <button onClick={handleAdd} disabled={submitting} className="text-xs text-primary-600 font-semibold min-h-[36px] px-1.5 disabled:text-gray-400">{submitting ? '...' : '추가'}</button>
             <button onClick={() => setAdding(false)} className="text-xs text-gray-400 min-h-[36px] px-1.5">취소</button>
           </div>
         </div>

@@ -1,64 +1,73 @@
-# YongHealth - 운동 일지 앱 기능 명세서
+# YongHealth - 기능 명세서
 
 ## 1. 개요
 
-하루하루의 운동 기록을 관리하는 웹 애플리케이션.
-사용자는 운동 날짜, 시간, 종목, 세트별 중량/횟수를 기록하고 조회할 수 있다.
+YongHealth는 운동 일지와 풋볼 팀 편성을 함께 제공하는 웹 애플리케이션이다.
+
+- 헬스 영역: 운동 날짜, 시간, 종목, 세트별 중량/횟수를 기록하고 조회한다.
+- 풋볼 영역: 회원을 등록하고 티어별 랜덤 팀 편성을 균등 인원 기준으로 생성한다.
 
 ## 2. 도메인 모델
 
 ### 2.1 Workout (운동 세션)
-하루의 운동 단위. 하나의 세션에 여러 운동 종목을 포함한다.
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
 | id | Long | PK |
 | workoutDate | LocalDate | 운동 날짜 |
-| startTime | LocalTime | 운동 시작 시간 |
-| endTime | LocalTime | 운동 종료 시간 (선택) |
-| memo | String | 메모 (선택) |
+| startTime | LocalTime | 시작 시간 |
+| endTime | LocalTime | 종료 시간 (nullable) |
+| memo | String | 메모 (nullable) |
 | createdAt | LocalDateTime | 생성일시 |
 | updatedAt | LocalDateTime | 수정일시 |
 
 ### 2.2 Exercise (운동 종목)
-하나의 세션 내에서 수행한 개별 운동 종목.
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
 | id | Long | PK |
-| workout | Workout | FK - 소속 세션 |
-| exerciseCatalogId | Long | FK - 운동 카탈로그 (nullable) |
-| displayName | String | 표시 종목명 |
-| customName | String | 직접 입력 종목명 (nullable) |
+| workout | Workout | 소속 세션 |
+| exerciseCatalogId | Long | 운동 카탈로그 ID (nullable) |
+| displayName | String | 화면 표시용 종목명 |
+| customName | String | 직접 입력명 (nullable) |
 | note | String | 종목 메모 (nullable) |
-| sortOrder | Integer | 종목 순서 |
-
-### 2.5 ExerciseCatalog (운동 카탈로그)
-표준 운동 목록. 검색/선택 기능을 지원한다.
-
-| 필드 | 타입 | 설명 |
-|---|---|---|
-| id | Long | PK |
-| name | String | 운동명 (unique) |
-| category | BodyPart | 부위 (CHEST, BACK, LEGS, SHOULDERS, ARMS, CORE, CARDIO) |
-| equipment | Equipment | 장비 (BARBELL, DUMBBELL, MACHINE, BODYWEIGHT, CABLE, BAND) |
-| movementType | MovementType | 동작 유형 (PUSH, PULL, LOWER, CARDIO, CORE, COMPOUND) |
-| active | Boolean | 활성 여부 |
-| aliases | List | 검색 별칭 (한글/영어/닉네임)
+| sortOrder | Integer | 화면 표시 순서 |
 
 ### 2.3 ExerciseSet (세트)
-운동 종목 당 각 세트의 기록.
 
 | 필드 | 타입 | 설명 |
 |---|---|---|
 | id | Long | PK |
-| exercise | Exercise | FK - 소속 종목 |
-| setNumber | Integer | 세트 번호 (1, 2, 3...) |
+| exercise | Exercise | 소속 종목 |
+| setNumber | Integer | 세트 번호 |
 | weight | Double | 중량 |
-| weightUnit | WeightUnit | 중량 단위 (KG / LB) |
+| weightUnit | WeightUnit | KG / LB |
 | reps | Integer | 반복 횟수 |
+| version | Long | 낙관적 락/중복 생성 방지용 버전 |
 
-### 2.4 WeightUnit (중량 단위 - Enum)
+### 2.4 ExerciseCatalog (운동 카탈로그)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| id | Long | PK |
+| name | String | 운동명 |
+| category | BodyPart | 운동 부위 |
+| equipment | Equipment | 장비 |
+| movementType | MovementType | 동작 유형 |
+| active | Boolean | 활성 여부 |
+| aliases | List<String> | 검색 별칭 |
+
+### 2.5 FootballMember (풋볼 회원)
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| id | Long | PK |
+| name | String | 회원명, unique |
+| grade | Integer | 티어 (1~6) |
+| createdAt | LocalDateTime | 생성일시 |
+| updatedAt | LocalDateTime | 수정일시 |
+
+### 2.6 WeightUnit
 
 | 값 | 설명 |
 |---|---|
@@ -68,28 +77,78 @@
 ## 3. 기능 요구사항
 
 ### 3.1 운동 세션 관리
-- **세션 생성**: 날짜, 시작 시간을 입력하여 새 운동 세션 생성
-- **세션 조회**: 전체 목록 조회, 날짜별 조회, 단건 상세 조회
-- **세션 수정**: 날짜, 시간, 메모 수정
-- **세션 삭제**: 세션 삭제 시 하위 종목/세트 모두 삭제 (cascade)
 
-### 3.2 운동 종목 관리
-- **종목 추가**: 세션에 운동 종목 추가 (종목명 입력)
-- **종목 수정**: 종목명, 순서 변경
-- **종목 삭제**: 종목 삭제 시 하위 세트 모두 삭제 (cascade)
+- 운동 세션 생성, 목록 조회, 날짜별 조회, 상세 조회가 가능해야 한다.
+- 운동 세션 수정 시 날짜, 시간, 메모를 바꿀 수 있어야 한다.
+- 운동 세션 삭제 시 하위 종목과 세트가 함께 삭제되어야 한다.
 
-### 3.3 세트 관리
-- **세트 추가**: 종목에 세트 추가 (중량, 단위, 횟수 입력)
-- **세트 수정**: 중량, 단위, 횟수 변경
-- **세트 삭제**: 개별 세트 삭제
+### 3.2 운동 종목/세트 관리
 
-### 3.4 중량 단위
-- 세트별로 KG 또는 LB 단위를 선택할 수 있다
-- 단위 변환 기능: KG ↔ LB 상호 변환 (1 KG = 2.20462 LB)
+- 운동 종목은 카탈로그 선택 또는 직접 입력으로 추가할 수 있어야 한다.
+- 운동 종목은 displayName 기준으로 화면에 노출되어야 한다.
+- 세트는 중량, 단위, 횟수로 등록/수정/삭제할 수 있어야 한다.
+- 동일 Exercise 내에서 같은 `setNumber` 중복 생성은 방지되어야 한다.
+
+### 3.3 달력/카탈로그/타이머
+
+- 월간 달력에서 운동 기록이 있는 날짜를 표시해야 한다.
+- 특정 날짜를 선택하면 해당 날짜 세션 목록을 보여줘야 한다.
+- ExercisePicker에서 카탈로그 검색, 카테고리 필터, 직접 입력 fallback을 제공해야 한다.
+- 쉬는 시간 타이머는 전역 상태로 유지되고 모바일/데스크탑에서 진입 가능해야 한다.
+
+### 3.4 공통 네비게이션
+
+- 앱 레이아웃에는 `헬스`와 `풋볼`을 전환하는 공통 네비게이션이 있어야 한다.
+- 데스크탑에서는 좌측 사이드바, 모바일에서는 상단 탭 바로 동작해야 한다.
+- 풋볼 화면에서는 기존 하단 BottomNav를 숨긴다.
+
+### 3.5 풋볼 회원 관리
+
+- 로그인 없이 회원을 단순 등록/조회/삭제할 수 있어야 한다.
+- 풋볼 관리 화면에서 회원 수정이 가능해야 한다.
+- 회원 등록 시 입력값은 이름, 티어다.
+- 이름은 필수이며 중복 등록을 허용하지 않는다.
+- 티어는 1~6 범위만 허용한다.
+- 회원 등록 UI는 화면 인라인 폼이 아니라 팝업 형태로 열려야 한다.
+- 회원 목록 UI는 요약/상세 토글을 제공해야 한다.
+- 회원 목록을 가린 상태에서는 전체 인원 수와 티어별 인원 수만 보여줘야 한다.
+- 회원 관리 기능은 `/football/manage` 탭에서만 제공한다.
+
+### 3.6 풋볼 팀 편성
+
+- 팀 수는 최소 2팀 이상이어야 한다.
+- 팀 수는 이번 경기로 선택한 인원 수보다 많을 수 없다.
+- 편성 대상은 저장된 전체 회원이 아니라 사용자가 이번 경기 참가자로 선택한 회원 목록이어야 한다.
+- 편성은 선택된 회원을 티어별로 독립적으로 셔플한 뒤 분배한다.
+- 현재 규칙은 `1티어`, `2티어`, `3티어`, `4티어`, `5티어`, `6티어`를 각각 별도 그룹으로 사용한다.
+- 3티어와 4티어는 합치지 않는다.
+- 팀별 인원 수는 전체 회원 수 기준으로 최대한 균등해야 하며 팀 간 인원 차이는 1명을 넘기면 안 된다.
+- 예시:
+  - 10명 / 2팀 → `5:5`
+  - 9명 / 2팀 → `5:4`
+  - 11명 / 2팀 → `6:5`
+  - 12명 / 3팀 → `4:4:4`
+  - 12명 / 2팀 → `6:6`
+- 각 티어 분배 시 시작 팀 위치를 랜덤화하되, 이미 목표 인원 수가 찬 팀에는 추가 배정하지 않는다.
+- 한 번 생성 시 3개의 랜덤 시나리오를 동시에 보여준다.
+
+### 3.7 풋볼 팀 수 입력 UX
+
+- 팀 수 입력은 수동 숫자 입력과 증가/감소 버튼을 모두 제공한다.
+- 입력 중에는 값이 강제로 되돌아가면 안 된다.
+- blur 또는 Enter 시점에만 최소/최대 범위로 정규화한다.
+
+### 3.8 풋볼 저장 팀
+
+- 랜덤으로 생성된 여러 시나리오 중 원하는 편성안은 별도 저장이 가능해야 한다.
+- 저장 팀은 이후 회원 정보가 수정되거나 삭제되어도 깨지지 않도록 스냅샷 형태로 보관해야 한다.
+- 저장 팀은 이름, 팀 수, 저장 시각, 팀별 멤버 이름/티어를 조회할 수 있어야 한다.
+- 저장된 팀 편성은 삭제할 수 있어야 한다. 삭제 시 확인 대화상자를 띄운다.
 
 ## 4. API 엔드포인트
 
 ### 4.1 Workout
+
 | Method | URI | 설명 |
 |---|---|---|
 | POST | /api/workouts | 운동 세션 생성 |
@@ -100,6 +159,7 @@
 | DELETE | /api/workouts/{id} | 세션 삭제 |
 
 ### 4.2 Exercise
+
 | Method | URI | 설명 |
 |---|---|---|
 | POST | /api/workouts/{workoutId}/exercises | 종목 추가 |
@@ -107,97 +167,147 @@
 | DELETE | /api/exercises/{id} | 종목 삭제 |
 
 ### 4.3 ExerciseSet
+
 | Method | URI | 설명 |
 |---|---|---|
 | POST | /api/exercises/{exerciseId}/sets | 세트 추가 |
 | PUT | /api/sets/{id} | 세트 수정 |
 | DELETE | /api/sets/{id} | 세트 삭제 |
 
-### 4.4 단위 변환
+### 4.4 중량 단위 변환
+
 | Method | URI | 설명 |
 |---|---|---|
 | GET | /api/convert?value={value}&from={unit}&to={unit} | 중량 단위 변환 |
 
 ### 4.5 달력 조회
+
 | Method | URI | 설명 |
 |---|---|---|
-| GET | /api/workouts/calendar?year=&month= | 월간 달력 요약 (날짜별 운동/종목/세트 수) |
+| GET | /api/workouts/calendar?year=&month= | 월간 달력 요약 |
 | GET | /api/workouts/date/{date} | 날짜별 운동 세션 목록 |
 
 ### 4.6 운동 카탈로그
+
 | Method | URI | 설명 |
 |---|---|---|
-| GET | /api/exercise-catalog | 전체 카탈로그 목록 |
-| GET | /api/exercise-catalog?category={category} | 카테고리별 조회 |
+| GET | /api/exercise-catalog | 전체/카테고리별 목록 |
 | GET | /api/exercise-catalog/search?query={query} | 이름/별칭 검색 |
 
-### 4.7 Health Check
+### 4.7 풋볼 회원
+
 | Method | URI | 설명 |
 |---|---|---|
-| GET | /health | 서버 상태 확인 |
+| GET | /api/football/members | 전체 회원 목록 조회 |
+| POST | /api/football/members | 회원 등록 |
+| PUT | /api/football/members/{id} | 회원 수정 |
+| DELETE | /api/football/members/{id} | 회원 삭제 |
+
+### 4.8 풋볼 저장 팀
+
+| Method | URI | 설명 |
+|---|---|---|
+| GET | /api/football/saved-teams | 저장된 팀 편성 목록 조회 |
+| POST | /api/football/saved-teams | 팀 편성 스냅샷 저장 |
+| DELETE | /api/football/saved-teams/{id} | 저장된 팀 편성 삭제 |
+
+### 4.9 Health Check
+
+| Method | URI | 설명 |
+|---|---|---|
+| GET | /health | 서버 상태 및 DB 연결 상태 확인 |
 
 ## 5. 프론트엔드 화면 명세
 
-### 5.1 메인 페이지 — 달력 대시보드 (`/`)
-- 월간 달력 뷰 (WorkoutCalendar)
-  - 운동 기록 있는 날에 dot 표시 (최대 3개)
-  - 오늘 날짜 ring 강조, 선택 날짜 primary 배경
-  - 월 이동 (◀ ▶), 오늘 바로가기 버튼
-- 날짜 클릭 시 팝업 오버레이 (WorkoutDaySheet)
-  - 해당 날짜 운동 세션 목록 (시간, 종목 수, 세트 수)
-  - "운동 기록 추가" CTA
-  - 기록 없을 시 EmptyState 표시
+### 5.1 앱 레이아웃
 
-### 5.2 운동 세션 상세/편집 페이지 (`/workouts/[id]`)
-- 세션 정보 표시/수정 (날짜, 시작시간, 종료시간, 메모)
-- 운동 종목 리스트 (아코디언 형태)
-  - 종목명 표시 / 수정 / 삭제
-  - "종목 추가" 버튼
-- 각 종목 하위에 세트 테이블
-  - 세트번호 | 중량 | 단위(KG/LB 토글) | 횟수
-  - 세트 추가 / 수정 / 삭제
-- 세션 삭제 버튼 (확인 다이얼로그)
+- `RootLayout`에 공통 Navbar, AppSidebar, BottomNav를 둔다.
+- AppSidebar는 `헬스`와 `풋볼` 탭을 제공한다.
+- 풋볼 모드에서는 탭 강조색과 배경 톤을 풋볼 테마로 변경한다.
+- 상단 Navbar 브랜드는 헬스 모드에서 `YongHealth`, 풋볼 모드에서 `SundayFC`를 사용한다.
+- 풋볼 모드에서는 운동용 타이머와 `새 운동 기록` 액션을 숨긴다.
 
-### 5.3 새 운동 기록 페이지 (`/workouts/new`)
-- 날짜, 시작시간 입력 폼
-- 종목 추가 → 세트 추가를 한 화면에서 진행
-- 저장 버튼
+### 5.4 풋볼 팀 생성 페이지 (`/football`)
 
-### 5.4 날짜별 운동 목록 (`/workouts/date/[date]`)
-- 특정 날짜의 운동 세션 목록 표시
-- 세션 상세 페이지로 이동 연결
-- "운동 기록 추가" CTA (날짜 전달)
+- 이번 경기 참가 멤버를 선택하는 선택 보드
+- 팀 수 입력 및 랜덤 편성 생성
+- 3개의 시나리오 비교 및 선택 저장
+- 저장된 팀 편성 목록 조회
 
-### 5.5 운동 종목 선택 (ExercisePicker)
-- 풀스크린 모달 (모바일) / 중앙 모달 (데스크탑)
-- createPortal로 document.body 렌더링 (z-index 겹침 방지)
-- 검색 (한글/영어/별칭), 카테고리 필터 (가로 스크롤)
-- 직접 입력 fallback
+### 5.5 풋볼 관리 페이지 (`/football/manage`)
 
-### 5.6 쉬는 시간 타이머 (RestTimer)
-- BottomNav(모바일) / Navbar(데스크탑)에 타이머 진입점
-- 타이머 동작 중 남은 시간 표시 (tabular-nums)
-- TimerSheet: 카운트다운 원형 프로그레스, 프리셋(60/90/120/180초), ±15초 조절
-- 일시정지/계속/리셋 조작
-- 종료 알림: 진동(Vibration API) + 소리(AudioContext) + 시각 효과(pulse)
-- 페이지 이동 시에도 타이머 유지 (React Context 전역 상태)
-- 백그라운드 탭 정확도 보장 (deadline 기반 + visibilitychange)
+- 회원 등록 팝업
+- 등록 회원 요약/상세 목록
+- 회원 수정/삭제
 
-### 5.7 공통 UI 요소
-- 상단 네비게이션 바 (앱 로고, 타이머, 새 운동 기록)
-- 하단 네비게이션 바 (홈, 타이머, 기록하기) — 모바일 전용
-- Skeleton 로딩 (Calendar, Card, Detail 변형)
-- EmptyState (아이콘 + 제목 + 설명 + CTA)
-- 에러/성공 토스트 메시지
-- ConfirmDialog (삭제 확인)
-- 반응형 레이아웃 (모바일 대응, 터치 타겟 44px+)
-- 컬러 테마: primary(indigo), surface, border, success/danger/warning
+### 5.2 헬스 메인 페이지 (`/`)
+
+- 월간 달력 대시보드
+- 날짜 선택 시 WorkoutDaySheet 노출
+- 운동 기록 추가 CTA 제공
+
+### 5.3 운동 세션 상세/편집 (`/workouts/[id]`)
+
+- 세션 정보 수정
+- ExerciseAccordion 기반 종목 편집
+- 세트 테이블 기반 세트 편집
+- 세션 삭제
+
+### 5.4 새 운동 기록 (`/workouts/new`)
+
+- 날짜, 시간, 운동 종목, 세트를 한 화면에서 입력
+- ExercisePicker 연동
+
+### 5.5 날짜별 운동 목록 (`/workouts/date/[date]`)
+
+- 해당 날짜 세션 목록
+- 세션 상세 이동
+- 날짜가 고정된 "운동 기록 추가" CTA
+
+### 5.6 ExercisePicker
+
+- 모바일: 풀스크린 모달
+- 데스크탑: 중앙 모달
+- 검색, 카테고리 필터, 직접 입력 fallback
+- `createPortal`로 렌더링하여 레이어 충돌을 방지한다.
+
+### 5.7 쉬는 시간 타이머
+
+- 모바일 BottomNav와 데스크탑 Navbar에서 진입
+- TimerSheet에서 프리셋, ±15초 조절, 일시정지/재개/리셋 제공
+- 종료 시 진동/오디오/시각 효과 제공
+
+### 5.8 풋볼 페이지 (`/football`)
+
+- 풋볼 히어로 영역: 현재 회원 수, 팀 수, 랜덤 시나리오 수 표시
+- 회원 등록 패널:
+  - 팝업 열기 버튼
+  - 모바일/데스크탑 공통 모달에서 이름, 티어 입력
+- 회원 목록 패널:
+  - 기본 상태는 요약 뷰
+  - 전체 인원 수, 티어별 인원 수 표시
+  - `회원 목록 보기 / 가리기` 토글 제공
+  - 펼친 상태에서만 회원 카드와 삭제 버튼 표시
+- 팀 생성 패널:
+  - 팀 수 입력
+  - 증가/감소 버튼
+  - 생성 조건 안내 메시지
+  - 현재 인원 기준 예상 팀별 인원 수 표시
+  - 3개의 랜덤 편성안 카드 표시
+- 팀 카드에는 팀 인원 수, 팀원 이름, 티어를 표시한다.
+- 풋볼 화면은 잔디/피치 느낌의 전용 테마 CSS를 사용한다.
 
 ## 6. 비기능 요구사항
 
-- Backend: REST API (JSON 응답)
-- Frontend: Next.js (App Router, TypeScript)
-- 에러 응답은 통일된 포맷 사용
-- 입력값 유효성 검증 (중량 > 0, 횟수 > 0 등)
-- Backend 포트: 8080 / Frontend 포트: 3000
-- CORS 설정으로 프론트엔드 ↔ 백엔드 통신 허용
+- Backend는 JSON 기반 REST API를 제공한다.
+- Frontend는 Next.js App Router와 TypeScript를 사용한다.
+- 에러 응답은 통일된 포맷을 사용한다.
+- 입력값 유효성 검증을 수행한다.
+- 모바일 기준 최소 44px 터치 타겟을 유지한다.
+- 헬스와 풋볼 화면 모두 반응형으로 동작해야 한다.
+- 개발 기본 포트는 Backend 8080, Frontend 3000이다.
+- 로컬에서 별도 인스턴스 확인이 필요할 때 Backend 8081, Frontend 3000/3001로 우회 실행할 수 있다.
+- 개발 기본 원칙은 TDD(`Red → Green → Refactor`) 이다.
+- 핵심 도메인 규칙은 domain logic test로 고정해야 한다.
+- `service`, `global`, `domain`, `controller` 계층 테스트가 함께 유지되어야 한다.
+- 핵심 사용자 흐름은 API E2E 테스트로 회귀를 방지해야 한다.

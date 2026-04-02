@@ -52,10 +52,6 @@ public class Workout extends BaseTimeEntity {
         exercises.add(exercise);
     }
 
-    public void removeExercise(Exercise exercise) {
-        exercises.remove(exercise);
-    }
-
     public int getTotalSetCount() {
         return exercises.stream()
                 .mapToInt(e -> e.getSets().size())

@@ -105,3 +105,61 @@
 - [x] 버튼 계층 색상 통일 (Primary/Secondary/Danger)
 - [x] 전체 blue → primary 테마 통일
 - [x] `npx next build` 통과
+
+### Phase 13: 풋볼 화면 추가 ✅
+- [x] 공통 레이아웃에 헬스/풋볼 전환용 사이드바 추가
+- [x] `/football` 페이지 및 풋볼 전용 화면 구성
+- [x] 풋볼 회원 등록/목록/삭제 UI 구현
+- [x] 풋볼 회원 API 구현 (조회, 등록, 삭제)
+- [x] 티어별 랜덤 팀 생성 UI 구현 (1~6티어 개별 분배)
+- [x] 한 번에 3개의 랜덤 편성안 표시
+- [x] 풋볼 테마 CSS 토큰 및 공통 카드 스타일 적용
+- [x] 풋볼 페이지 히어로/현황 보드/상태 메시지 폴리시 적용
+- [x] `./gradlew test` 통과
+- [x] `cd frontend && npm run build` 통과
+
+### BUG-3: 풋볼 팀 수 입력 고정 문제 수정 ✅
+- [x] 팀 수 입력 중 값이 즉시 2로 되돌아가는 문제 수정
+- [x] 문자열 입력 후 blur/Enter 시 정규화하도록 변경
+- [x] 팀 수 증가/감소 스텝 버튼 추가
+- [x] `cd frontend && npm run build` 통과
+
+### Phase 14: 풋볼 편성 균형/모바일 UX 개선 ✅
+- [x] 팀 편성 로직을 총 인원 기준 균등 분배 방식으로 변경
+- [x] `10명/2팀 -> 5:5`, `9명/2팀 -> 5:4`, `12명/3팀 -> 4:4:4` 규칙 반영
+- [x] 티어 셔플은 유지하되 목표 인원 수가 찬 팀은 건너뛰도록 수정
+- [x] 회원 등록을 팝업 모달로 전환
+- [x] 회원 목록을 요약/상세 토글 구조로 변경
+- [x] 회원 추가/삭제 시 기존 편성안 자동 초기화
+- [x] `./gradlew test` 통과
+- [x] `cd frontend && npm run build` 통과
+
+### Phase 15: TDD 테스트 기반 확장 ✅
+- [x] `CLAUDE.md`, `AGENTS.md`에 TDD 원칙 반영
+- [x] domain logic test 추가
+- [x] service integration test 정비 및 전체 스위트 검증
+- [x] controller slice test 정비 및 전체 스위트 검증
+- [x] global(config/error/util) test 추가
+- [x] API E2E test 추가
+- [x] `./gradlew test` 통과
+
+### Phase 16: 풋볼 관리 분리와 저장 팀 스냅샷 ✅
+- [x] `/football`과 `/football/manage` 하위 탭 구조 추가
+- [x] 팀 생성 화면에서 이번 경기 참가 멤버 선택 UI 추가
+- [x] 풋볼 회원 수정 API 및 관리 모달 추가
+- [x] 선택된 랜덤 편성안 저장 API 및 조회 UI 추가
+- [x] 저장 팀 스냅샷용 Neon SQL 문안 정리
+- [x] `./gradlew test` 통과
+- [x] `cd frontend && npm run build` 통과
+
+### Phase 17: 보관 팀 삭제 기능 ✅
+- [x] `FootballSavedTeamUseCase`에 `delete(Long id)` 메서드 추가
+- [x] `DefaultFootballSavedTeamService`에 삭제 구현 (EntityNotFoundException 처리)
+- [x] `FootballSavedTeamController`에 `DELETE /{id}` 엔드포인트 추가
+- [x] Controller/Service/E2E 테스트 작성 및 통과
+- [x] 프론트엔드 API 클라이언트에 `deleteSavedTeam` 추가
+- [x] `SavedTeamsPanel`에 삭제 버튼 및 로딩 상태 추가
+- [x] `FootballPage`에 삭제 핸들러 (confirm 대화상자 포함) 추가
+- [x] `spec.md` API 명세 업데이트
+- [x] `./gradlew test` 통과
+- [x] TypeScript 타입 체크 통과

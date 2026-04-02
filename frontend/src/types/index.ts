@@ -104,3 +104,51 @@ export interface ErrorResponse {
   message: string;
   timestamp: string;
 }
+
+// Football types
+export interface FootballMember {
+  id: number;
+  name: string;
+  grade: number;
+}
+
+export interface FootballMemberRequest {
+  name: string;
+  grade: number;
+}
+
+export interface FootballSavedTeamMember {
+  memberId?: number | null;
+  memberName: string;
+  memberGrade: number;
+}
+
+export interface FootballSavedTeamLineup {
+  teamNumber: number;
+  members: FootballSavedTeamMember[];
+}
+
+export interface FootballSavedTeam {
+  id: number;
+  name: string;
+  teamCount: number;
+  createdAt: string;
+  teams: FootballSavedTeamLineup[];
+}
+
+export interface FootballSavedTeamRequest {
+  name?: string;
+  teams: FootballSavedTeamLineup[];
+}
+
+export type GradeGroup = '1티어' | '2티어' | '3티어' | '4티어' | '5티어' | '6티어';
+
+export interface TeamResult {
+  teamNumber: number;
+  members: FootballMember[];
+}
+
+export interface TeamScenario {
+  id: number;
+  teams: TeamResult[];
+}

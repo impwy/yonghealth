@@ -12,19 +12,43 @@ import type {
   ExerciseCatalog,
   ExerciseCatalogSearchResponse,
   BodyPart,
+  FootballMember,
+  FootballMemberRequest,
+  FootballSavedTeam,
+  FootballSavedTeamRequest,
 } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
+  const headers: HeadersInit = options?.body
+    ? { 'Content-Type': 'application/json' }
+    : {};
   const res = await fetch(`${API_BASE}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     ...options,
   });
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: '요청에 실패했습니다' }));
-    throw new Error(error.message);
+    const contentType = res.headers.get('content-type') ?? '';
+
+    if (contentType.includes('application/json')) {
+      const error = await res.json().catch(() => null);
+      if (error?.message) {
+        throw new Error(error.message);
+      }
+    } else {
+      const text = await res.text().catch(() => '');
+      if (text.trim()) {
+        throw new Error(text.trim());
+      }
+    }
+
+    if (res.status === 404) {
+      throw new Error('요청한 API를 찾을 수 없습니다');
+    }
+
+    throw new Error(`요청에 실패했습니다 (${res.status})`);
   }
 
   if (res.status === 204) return undefined as T;
@@ -106,6 +130,37 @@ export const exerciseCatalogApi = {
 
   search: (query: string) =>
     fetchApi<ExerciseCatalogSearchResponse>(`/api/exercise-catalog/search?query=${encodeURIComponent(query)}`),
+};
+
+// Football API
+export const footballApi = {
+  getMembers: () => fetchApi<FootballMember[]>('/api/football/members'),
+
+  createMember: (data: FootballMemberRequest) =>
+    fetchApi<FootballMember>('/api/football/members', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateMember: (id: number, data: FootballMemberRequest) =>
+    fetchApi<FootballMember>(`/api/football/members/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteMember: (id: number) =>
+    fetchApi<void>(`/api/football/members/${id}`, { method: 'DELETE' }),
+
+  getSavedTeams: () => fetchApi<FootballSavedTeam[]>('/api/football/saved-teams'),
+
+  saveTeam: (data: FootballSavedTeamRequest) =>
+    fetchApi<FootballSavedTeam>('/api/football/saved-teams', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  deleteSavedTeam: (id: number) =>
+    fetchApi<void>(`/api/football/saved-teams/${id}`, { method: 'DELETE' }),
 };
 
 // Weight Conversion API
