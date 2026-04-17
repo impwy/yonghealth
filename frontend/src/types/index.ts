@@ -146,9 +146,36 @@ export type GradeGroup = '1티어' | '2티어' | '3티어' | '4티어' | '5티�
 export interface TeamResult {
   teamNumber: number;
   members: FootballMember[];
+  gradeSum: number;
 }
 
 export interface TeamScenario {
   id: number;
   teams: TeamResult[];
+}
+
+export type LockedAssignments = Record<number, number>;
+
+export type TeamGenerationMode = 'random' | 'roulette';
+export type RouletteSpinPhase = 'idle' | 'spinning' | 'settled';
+
+export interface RouletteAssignmentStep {
+  id: number;
+  tier: GradeGroup;
+  targetTeamIndex: number;
+  targetTeamNumber: number;
+  candidates: FootballMember[];
+  selectedCandidateIndex: number;
+  selectedMember: FootballMember;
+  spinRotationDeg: number;
+  teams: TeamResult[];
+}
+
+export interface RoulettePlan {
+  initialTeams: TeamResult[];
+  lockedMemberCount: number;
+  rouletteMemberCount: number;
+  targetSizes: number[];
+  steps: RouletteAssignmentStep[];
+  finalTeams: TeamResult[];
 }

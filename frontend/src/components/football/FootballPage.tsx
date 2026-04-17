@@ -1,18 +1,28 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { FootballMember, FootballSavedTeam, TeamScenario } from '@/types';
+import type {
+  FootballMember,
+  FootballSavedTeam,
+  LockedAssignments,
+  RoulettePlan,
+  RouletteSpinPhase,
+  TeamScenario,
+} from '@/types';
 import { footballApi } from '@/lib/api';
-import { generateScenarios } from '@/lib/teamGenerator';
+import { buildRoulettePlan, generateScenarios } from '@/lib/teamGenerator';
 import MemberSelector from './MemberSelector';
 import SavedTeamsPanel from './SavedTeamsPanel';
 import TeamGenerator from './TeamGenerator';
+
+const ROULETTE_SPIN_DURATION_MS = 2200;
+const ROULETTE_SETTLE_DURATION_MS = 800;
 
 function sortMembers(members: FootballMember[]) {
   return [...members].sort((a, b) => a.grade - b.grade || a.name.localeCompare(b.name));
 }
 
-function buildDefaultSaveName(teamCount: number, scenarioId: number) {
+function buildDefaultSaveName(teamCount: number) {
   const now = new Date();
   const date = now.toLocaleDateString('ko-KR', {
     month: '2-digit',
@@ -24,7 +34,18 @@ function buildDefaultSaveName(teamCount: number, scenarioId: number) {
     hour12: false,
   });
 
-  return `${date} ${time} ${teamCount}팀 편성안 ${scenarioId}`;
+  return `${date} ${time} ${teamCount}팀 편성`;
+}
+
+function pruneLocks(locks: LockedAssignments, maxTeamCount: number, validMemberIds: Set<number>): LockedAssignments {
+  const next: LockedAssignments = {};
+  for (const [idStr, team] of Object.entries(locks)) {
+    const id = Number(idStr);
+    if (!validMemberIds.has(id)) continue;
+    if (team < 0 || team >= maxTeamCount) continue;
+    next[id] = team;
+  }
+  return next;
 }
 
 export default function FootballPage() {
@@ -34,11 +55,16 @@ export default function FootballPage() {
   const [loading, setLoading] = useState(true);
   const [membersError, setMembersError] = useState<string | null>(null);
   const [savedTeamsError, setSavedTeamsError] = useState<string | null>(null);
-  const [scenarios, setScenarios] = useState<TeamScenario[]>([]);
+  const [scenario, setScenario] = useState<TeamScenario | null>(null);
   const [teamCount, setTeamCount] = useState(2);
   const [saveName, setSaveName] = useState('');
-  const [savingScenarioId, setSavingScenarioId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
   const [deletingTeamId, setDeletingTeamId] = useState<number | null>(null);
+  const [lockedAssignments, setLockedAssignments] = useState<LockedAssignments>({});
+  const [roulettePlan, setRoulettePlan] = useState<RoulettePlan | null>(null);
+  const [rouletteStepIndex, setRouletteStepIndex] = useState(0);
+  const [roulettePhase, setRoulettePhase] = useState<RouletteSpinPhase>('idle');
+
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -76,39 +102,129 @@ export default function FootballPage() {
     totalCount: members.filter((member) => member.grade === grade).length,
   }));
 
-  const resetScenarios = () => {
-    setScenarios([]);
+  const resetScenario = () => {
+    setScenario(null);
+    setRoulettePlan(null);
+    setRouletteStepIndex(0);
+    setRoulettePhase('idle');
   };
 
+  useEffect(() => {
+    if (!roulettePlan || roulettePhase === 'idle') return;
+
+    const activeStep = roulettePlan.steps[rouletteStepIndex];
+    if (!activeStep) {
+      setScenario({ id: 1, teams: roulettePlan.finalTeams });
+      setRoulettePhase('idle');
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      if (roulettePhase === 'spinning') {
+        setScenario({ id: 1, teams: activeStep.teams });
+        setRoulettePhase('settled');
+        return;
+      }
+
+      const nextStepIndex = rouletteStepIndex + 1;
+      if (nextStepIndex >= roulettePlan.steps.length) {
+        setScenario({ id: 1, teams: roulettePlan.finalTeams });
+        setRoulettePhase('idle');
+        return;
+      }
+
+      setRouletteStepIndex(nextStepIndex);
+      setRoulettePhase('spinning');
+    }, roulettePhase === 'spinning' ? ROULETTE_SPIN_DURATION_MS : ROULETTE_SETTLE_DURATION_MS);
+
+    return () => clearTimeout(timeout);
+  }, [roulettePhase, roulettePlan, rouletteStepIndex]);
+
   const handleToggleMember = (id: number) => {
-    setSelectedMemberIds((prev) => (
-      prev.includes(id)
-        ? prev.filter((memberId) => memberId !== id)
-        : [...prev, id]
-    ));
-    resetScenarios();
+    setSelectedMemberIds((prev) => {
+      const isDeselecting = prev.includes(id);
+      if (isDeselecting) {
+        setLockedAssignments((locks) => {
+          if (!(id in locks)) return locks;
+          const next = { ...locks };
+          delete next[id];
+          return next;
+        });
+        return prev.filter((memberId) => memberId !== id);
+      }
+      return [...prev, id];
+    });
+    resetScenario();
   };
 
   const handleSelectAllMembers = () => {
     setSelectedMemberIds(members.map((member) => member.id));
-    resetScenarios();
+    resetScenario();
   };
 
   const handleClearSelection = () => {
     setSelectedMemberIds([]);
-    resetScenarios();
+    setLockedAssignments({});
+    resetScenario();
+  };
+
+  const handleTeamCountChange = (next: number) => {
+    setTeamCount(next);
+    setLockedAssignments((prev) => pruneLocks(prev, next, new Set(selectedMemberIds)));
+    resetScenario();
+  };
+
+  const handleLockChange = (memberId: number, team: number | null) => {
+    setLockedAssignments((prev) => {
+      const next = { ...prev };
+      if (team === null) {
+        delete next[memberId];
+      } else {
+        next[memberId] = team;
+      }
+      return next;
+    });
+    resetScenario();
   };
 
   const handleGenerate = (nextTeamCount: number) => {
-    const result = generateScenarios(selectedMembers, nextTeamCount, 3);
-    setScenarios(result);
+    const prunedLocks = pruneLocks(lockedAssignments, nextTeamCount, new Set(selectedMemberIds));
+    if (prunedLocks !== lockedAssignments) {
+      setLockedAssignments(prunedLocks);
+    }
+    setRoulettePlan(null);
+    setRouletteStepIndex(0);
+    setRoulettePhase('idle');
+    const [result] = generateScenarios(selectedMembers, nextTeamCount, 1, prunedLocks);
+    setScenario(result ?? null);
   };
 
-  const handleSaveScenario = async (scenario: TeamScenario) => {
-    setSavingScenarioId(scenario.id);
+  const handleGenerateRoulette = (nextTeamCount: number) => {
+    const prunedLocks = pruneLocks(lockedAssignments, nextTeamCount, new Set(selectedMemberIds));
+    if (prunedLocks !== lockedAssignments) {
+      setLockedAssignments(prunedLocks);
+    }
+
+    const plan = buildRoulettePlan(selectedMembers, nextTeamCount, prunedLocks);
+    setRoulettePlan(plan);
+    setRouletteStepIndex(0);
+    setScenario({ id: 1, teams: plan.initialTeams });
+
+    if (plan.steps.length === 0) {
+      setScenario({ id: 1, teams: plan.finalTeams });
+      setRoulettePhase('idle');
+      return;
+    }
+
+    setRoulettePhase('spinning');
+  };
+
+  const handleSaveScenario = async () => {
+    if (!scenario) return;
+    setSaving(true);
     try {
       const savedTeam = await footballApi.saveTeam({
-        name: saveName.trim() || buildDefaultSaveName(scenario.teams.length, scenario.id),
+        name: saveName.trim() || buildDefaultSaveName(scenario.teams.length),
         teams: scenario.teams.map((team) => ({
           teamNumber: team.teamNumber,
           members: team.members.map((member) => ({
@@ -125,7 +241,22 @@ export default function FootballPage() {
     } catch (error) {
       setSavedTeamsError(error instanceof Error ? error.message : '팀 보관에 실패했습니다');
     } finally {
-      setSavingScenarioId(null);
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteSavedTeam = async (id: number) => {
+    if (!confirm('이 보관 팀을 삭제하시겠습니까?')) return;
+
+    setDeletingTeamId(id);
+    try {
+      await footballApi.deleteSavedTeam(id);
+      setSavedTeams((prev) => prev.filter((team) => team.id !== id));
+      setSavedTeamsError(null);
+    } catch (error) {
+      setSavedTeamsError(error instanceof Error ? error.message : '보관 팀 삭제에 실패했습니다');
+    } finally {
+      setDeletingTeamId(null);
     }
   };
 
@@ -166,7 +297,7 @@ export default function FootballPage() {
               오늘 뛸 멤버만 골라 팀을 만듭니다
             </h1>
             <p className="mt-2 max-w-2xl break-keep text-sm leading-6 text-emerald-50/90 md:text-base">
-              저장된 회원 명단에서 이번 경기 참가자만 선택하고, 균등 분배된 랜덤 시나리오 중 원하는 안을 바로 보관할 수 있습니다.
+              저장된 회원 명단에서 이번 경기 참가자만 선택하고, 티어가 균등하게 섞인 랜덤 편성을 바로 보관할 수 있습니다.
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -213,19 +344,27 @@ export default function FootballPage() {
         onToggleMember={handleToggleMember}
         onSelectAll={handleSelectAllMembers}
         onClear={handleClearSelection}
+        teamCount={teamCount}
+        lockedAssignments={lockedAssignments}
+        onLockChange={handleLockChange}
       />
 
       <TeamGenerator
         members={selectedMembers}
         totalMemberCount={members.length}
         teamCount={teamCount}
-        onTeamCountChange={setTeamCount}
-        scenarios={scenarios}
+        onTeamCountChange={handleTeamCountChange}
+        scenario={scenario}
         onGenerate={handleGenerate}
+        onGenerateRoulette={handleGenerateRoulette}
         saveName={saveName}
         onSaveNameChange={setSaveName}
         onSaveScenario={handleSaveScenario}
-        savingScenarioId={savingScenarioId}
+        saving={saving}
+        lockedCount={Object.keys(lockedAssignments).length}
+        roulettePlan={roulettePlan}
+        rouletteStepIndex={rouletteStepIndex}
+        roulettePhase={roulettePhase}
       />
 
       {savedTeamsError && (

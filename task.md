@@ -163,3 +163,41 @@
 - [x] `spec.md` API 명세 업데이트
 - [x] `./gradlew test` 통과
 - [x] TypeScript 타입 체크 통과
+
+### Phase 18: 풋볼 편성 UX 개선 (티어 균등·고정 배정·클립보드·모바일 압축) ✅
+- [x] `teamGenerator.ts`를 min-load greedy 분배로 교체 (팀 간 티어 인원 차이 ≤ 1 보장)
+- [x] `LockedAssignments` 타입 추가 및 `generateTeams`에 사전 고정 인자 추가
+- [x] `TeamResult`에 `gradeSum`(티어 단순 합) 필드 추가
+- [x] `formatTeamsForClipboard` 유틸 추가 (`n팀: 이름, 이름` 줄바꿈 포맷)
+- [x] `MemberSelector`에 "자동 / n팀 고정" 드롭다운 추가, 카드 그리드 모바일 2열로 압축
+- [x] `FootballPage`에 `lockedAssignments` 상태 추가, 선택 해제/팀 수 변경 시 자동 정리
+- [x] 시나리오 3개 → 1개로 단순화, 같은 버튼을 "다시 굴리기"로 라벨 스왑
+- [x] 팀 카드 헤더에 인원 수와 `티어합` 표시, 그리드를 모바일 2열 / lg 3열 / xl 4열로 압축
+- [x] 클립보드 복사 버튼 (`aria-live` 피드백 + 2초 후 라벨 복원)
+- [x] `spec.md`, `fix.md`, `insight.md` 동기화
+- [x] `npx next build` 통과
+
+### BUG-6: 프론트엔드 빌드 리소스 폭증 수정 ✅
+- [x] 콜드 빌드에서 `next/font/google` 외부 fetch 실패 확인
+- [x] Turbopack 빌드 경로에서 PostCSS 처리 중 panic 발생 확인
+- [x] `frontend/package.json` build 스크립트를 `next build --webpack`으로 변경
+- [x] `frontend/src/app/layout.tsx`의 Google Fonts import 제거
+- [x] `frontend/src/app/globals.css`의 `font-sans`를 시스템 폰트 스택으로 변경
+- [x] 콜드 상태 `cd frontend && npm run build` 통과
+- [x] `cd frontend && npm test` 통과
+
+### Phase 19: 실제 룰렛 팀 편성 게임 ✅
+- [x] 완전 랜덤 / 룰렛 모드 토글 추가
+- [x] 고정 멤버 제외 후 남은 멤버만 룰렛 후보로 구성
+- [x] `RoulettePlan`에 후보 목록, 당첨 인덱스, 누적 회전 각도, 고정/룰렛 인원 수 추가
+- [x] 룰렛 휠을 실제 회전 애니메이션으로 렌더링하고 당첨 위치에 멈추도록 구현
+- [x] 당첨 멤버를 티어합, 티어 분포, 인원 수 균형 기준으로 팀 배정
+- [x] 룰렛 진행 중 저장/복사/모드 전환 비활성화
+- [x] 프론트엔드 룰렛 로직 테스트 추가
+- [x] 테스트 DB를 14명까지 채우고 `/football` 화면 렌더링 확인
+- [x] Headless Chrome에서 `룰렛` 모드 선택 후 `룰렛 시작` 클릭, 회전 UI 캡처 확인
+- [x] `cd frontend && npm test` 통과
+- [x] `cd frontend && npm run lint` 통과 (기존 `WorkoutForm.tsx` warning 1건)
+- [x] `cd frontend && npm run build` 통과
+- [x] `./gradlew test` 통과
+
