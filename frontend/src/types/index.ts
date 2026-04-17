@@ -155,3 +155,27 @@ export interface TeamScenario {
 }
 
 export type LockedAssignments = Record<number, number>;
+
+export type TeamGenerationMode = 'random' | 'roulette';
+export type RouletteSpinPhase = 'idle' | 'spinning' | 'settled';
+
+export interface RouletteAssignmentStep {
+  id: number;
+  tier: GradeGroup;
+  targetTeamIndex: number;
+  targetTeamNumber: number;
+  candidates: FootballMember[];
+  selectedCandidateIndex: number;
+  selectedMember: FootballMember;
+  spinRotationDeg: number;
+  teams: TeamResult[];
+}
+
+export interface RoulettePlan {
+  initialTeams: TeamResult[];
+  lockedMemberCount: number;
+  rouletteMemberCount: number;
+  targetSizes: number[];
+  steps: RouletteAssignmentStep[];
+  finalTeams: TeamResult[];
+}

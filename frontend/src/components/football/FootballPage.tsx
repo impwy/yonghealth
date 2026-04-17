@@ -1,12 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { FootballMember, FootballSavedTeam, LockedAssignments, TeamScenario } from '@/types';
+import type {
+  FootballMember,
+  FootballSavedTeam,
+  LockedAssignments,
+  RoulettePlan,
+  RouletteSpinPhase,
+  TeamScenario,
+} from '@/types';
 import { footballApi } from '@/lib/api';
-import { generateScenarios } from '@/lib/teamGenerator';
+import { buildRoulettePlan, generateScenarios } from '@/lib/teamGenerator';
 import MemberSelector from './MemberSelector';
 import SavedTeamsPanel from './SavedTeamsPanel';
 import TeamGenerator from './TeamGenerator';
+
+const ROULETTE_SPIN_DURATION_MS = 2200;
+const ROULETTE_SETTLE_DURATION_MS = 800;
 
 function sortMembers(members: FootballMember[]) {
   return [...members].sort((a, b) => a.grade - b.grade || a.name.localeCompare(b.name));
@@ -51,6 +61,9 @@ export default function FootballPage() {
   const [saving, setSaving] = useState(false);
   const [deletingTeamId, setDeletingTeamId] = useState<number | null>(null);
   const [lockedAssignments, setLockedAssignments] = useState<LockedAssignments>({});
+  const [roulettePlan, setRoulettePlan] = useState<RoulettePlan | null>(null);
+  const [rouletteStepIndex, setRouletteStepIndex] = useState(0);
+  const [roulettePhase, setRoulettePhase] = useState<RouletteSpinPhase>('idle');
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -90,7 +103,41 @@ export default function FootballPage() {
 
   const resetScenario = () => {
     setScenario(null);
+    setRoulettePlan(null);
+    setRouletteStepIndex(0);
+    setRoulettePhase('idle');
   };
+
+  useEffect(() => {
+    if (!roulettePlan || roulettePhase === 'idle') return;
+
+    const activeStep = roulettePlan.steps[rouletteStepIndex];
+    if (!activeStep) {
+      setScenario({ id: 1, teams: roulettePlan.finalTeams });
+      setRoulettePhase('idle');
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      if (roulettePhase === 'spinning') {
+        setScenario({ id: 1, teams: activeStep.teams });
+        setRoulettePhase('settled');
+        return;
+      }
+
+      const nextStepIndex = rouletteStepIndex + 1;
+      if (nextStepIndex >= roulettePlan.steps.length) {
+        setScenario({ id: 1, teams: roulettePlan.finalTeams });
+        setRoulettePhase('idle');
+        return;
+      }
+
+      setRouletteStepIndex(nextStepIndex);
+      setRoulettePhase('spinning');
+    }, roulettePhase === 'spinning' ? ROULETTE_SPIN_DURATION_MS : ROULETTE_SETTLE_DURATION_MS);
+
+    return () => clearTimeout(timeout);
+  }, [roulettePhase, roulettePlan, rouletteStepIndex]);
 
   const handleToggleMember = (id: number) => {
     setSelectedMemberIds((prev) => {
@@ -144,8 +191,31 @@ export default function FootballPage() {
     if (prunedLocks !== lockedAssignments) {
       setLockedAssignments(prunedLocks);
     }
+    setRoulettePlan(null);
+    setRouletteStepIndex(0);
+    setRoulettePhase('idle');
     const [result] = generateScenarios(selectedMembers, nextTeamCount, 1, prunedLocks);
     setScenario(result ?? null);
+  };
+
+  const handleGenerateRoulette = (nextTeamCount: number) => {
+    const prunedLocks = pruneLocks(lockedAssignments, nextTeamCount, new Set(selectedMemberIds));
+    if (prunedLocks !== lockedAssignments) {
+      setLockedAssignments(prunedLocks);
+    }
+
+    const plan = buildRoulettePlan(selectedMembers, nextTeamCount, prunedLocks);
+    setRoulettePlan(plan);
+    setRouletteStepIndex(0);
+    setScenario({ id: 1, teams: plan.initialTeams });
+
+    if (plan.steps.length === 0) {
+      setScenario({ id: 1, teams: plan.finalTeams });
+      setRoulettePhase('idle');
+      return;
+    }
+
+    setRoulettePhase('spinning');
   };
 
   const handleSaveScenario = async () => {
@@ -270,11 +340,15 @@ export default function FootballPage() {
         onTeamCountChange={handleTeamCountChange}
         scenario={scenario}
         onGenerate={handleGenerate}
+        onGenerateRoulette={handleGenerateRoulette}
         saveName={saveName}
         onSaveNameChange={setSaveName}
         onSaveScenario={handleSaveScenario}
         saving={saving}
         lockedCount={Object.keys(lockedAssignments).length}
+        roulettePlan={roulettePlan}
+        rouletteStepIndex={rouletteStepIndex}
+        roulettePhase={roulettePhase}
       />
 
       {savedTeamsError && (

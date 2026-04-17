@@ -176,3 +176,27 @@
 - [x] 클립보드 복사 버튼 (`aria-live` 피드백 + 2초 후 라벨 복원)
 - [x] `spec.md`, `fix.md`, `insight.md` 동기화
 - [x] `npx next build` 통과
+
+### BUG-6: 프론트엔드 빌드 리소스 폭증 수정 ✅
+- [x] 콜드 빌드에서 `next/font/google` 외부 fetch 실패 확인
+- [x] Turbopack 빌드 경로에서 PostCSS 처리 중 panic 발생 확인
+- [x] `frontend/package.json` build 스크립트를 `next build --webpack`으로 변경
+- [x] `frontend/src/app/layout.tsx`의 Google Fonts import 제거
+- [x] `frontend/src/app/globals.css`의 `font-sans`를 시스템 폰트 스택으로 변경
+- [x] 콜드 상태 `cd frontend && npm run build` 통과
+- [x] `cd frontend && npm test` 통과
+
+### Phase 19: 실제 룰렛 팀 편성 게임 ✅
+- [x] 완전 랜덤 / 룰렛 모드 토글 추가
+- [x] 고정 멤버 제외 후 남은 멤버만 룰렛 후보로 구성
+- [x] `RoulettePlan`에 후보 목록, 당첨 인덱스, 누적 회전 각도, 고정/룰렛 인원 수 추가
+- [x] 룰렛 휠을 실제 회전 애니메이션으로 렌더링하고 당첨 위치에 멈추도록 구현
+- [x] 당첨 멤버를 티어합, 티어 분포, 인원 수 균형 기준으로 팀 배정
+- [x] 룰렛 진행 중 저장/복사/모드 전환 비활성화
+- [x] 프론트엔드 룰렛 로직 테스트 추가
+- [x] 테스트 DB를 14명까지 채우고 `/football` 화면 렌더링 확인
+- [x] Headless Chrome에서 `룰렛` 모드 선택 후 `룰렛 시작` 클릭, 회전 UI 캡처 확인
+- [x] `cd frontend && npm test` 통과
+- [x] `cd frontend && npm run lint` 통과 (기존 `WorkoutForm.tsx` warning 1건)
+- [x] `cd frontend && npm run build` 통과
+- [x] `./gradlew test` 통과
