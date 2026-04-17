@@ -27,6 +27,12 @@
 > Using `outputFileTracingRoot` value: /vercel/path0.
 > vercel error
 
+**추가 요청(2026-04-18):**
+> 푸시해줘
+
+**확인된 추가 실패 원인:**
+- 원격 브랜치 변경을 rebase한 뒤 Vercel preview에서 `handleDeleteSavedTeam` 중복 선언으로 Webpack compile 실패
+
 **상태:** 진행 중
 
 ---

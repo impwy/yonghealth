@@ -173,6 +173,13 @@
   - 로컬 개발 환경에서는 기존 `turbopack.root` 설정을 유지
   - `VERCEL=1 npm run build`, `npm run build`, `npm test`, `npm run lint`로 확인
 
+### BUG-8 FootballPage 저장 팀 삭제 핸들러 중복
+- 증상: Vercel preview 빌드에서 `Identifier 'handleDeleteSavedTeam' has already been declared`로 Webpack compile 실패
+- 원인: 원격 브랜치의 보관 팀 삭제 기능 커밋을 rebase하면서 `handleDeleteSavedTeam` 선언이 두 번 남음
+- 수정:
+  - 중복 선언 1개를 제거하고 기존 `SavedTeamsPanel` 연결은 유지
+  - `npm run build`, `npm test`, `npm run lint`로 확인
+
 ---
 
 ## 8. 로컬 실행 관련 수정 메모
