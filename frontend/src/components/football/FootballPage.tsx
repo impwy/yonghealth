@@ -260,21 +260,6 @@ export default function FootballPage() {
     }
   };
 
-  const handleDeleteSavedTeam = async (id: number) => {
-    if (!confirm('이 보관 팀을 삭제하시겠습니까?')) return;
-
-    setDeletingTeamId(id);
-    try {
-      await footballApi.deleteSavedTeam(id);
-      setSavedTeams((prev) => prev.filter((team) => team.id !== id));
-      setSavedTeamsError(null);
-    } catch (error) {
-      setSavedTeamsError(error instanceof Error ? error.message : '보관 팀 삭제에 실패했습니다');
-    } finally {
-      setDeletingTeamId(null);
-    }
-  };
-
   if (loading) {
     return (
       <div className="space-y-4">

@@ -109,6 +109,11 @@ const remainder = memberCount % teamCount;
 - 네트워크가 막히거나 불안정하면 기능 코드와 무관하게 빌드가 실패한다.
 - 프로젝트가 폰트 자체에 강하게 의존하지 않는다면 시스템 폰트 스택을 쓰면 콜드 빌드가 네트워크와 분리된다.
 
+### Vercel이 주입하는 Next 설정은 로컬 설정과 같은 루트를 요구할 수 있다
+- Vercel은 Git 배포 중 `outputFileTracingRoot`를 repo root로 보정한다.
+- monorepo 로컬 개발용 `turbopack.root`가 app 디렉터리를 가리키면 두 루트가 달라져 경고가 발생한다.
+- 배포 환경에서는 플랫폼이 주입하는 tracing root를 우선하고, 로컬 개발용 설정은 `process.env.VERCEL` 조건으로 분리하는 편이 안전하다.
+
 ---
 
 ## JPA 엔티티 설계

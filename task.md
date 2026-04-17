@@ -186,6 +186,24 @@
 - [x] 콜드 상태 `cd frontend && npm run build` 통과
 - [x] `cd frontend && npm test` 통과
 
+### BUG-7: Vercel Next 설정 충돌 경고 수정 ✅
+- [x] Vercel 빌드의 `outputFileTracingRoot` / `turbopack.root` 충돌 로그 확인
+- [x] Vercel 환경에서는 `turbopack.root`를 제외하도록 `next.config.ts` 조건 처리
+- [x] 로컬 Turbopack root 설정은 개발 환경에서 유지
+- [x] `cd frontend && VERCEL=1 npm run build` 통과
+- [x] `cd frontend && npm run build` 통과
+- [x] `cd frontend && npm test` 통과
+- [x] `cd frontend && npm run lint` 통과 (기존 `WorkoutForm.tsx` warning 1건)
+- [x] `./gradlew test` 통과
+
+### BUG-8: FootballPage 저장 팀 삭제 핸들러 중복 수정 ✅
+- [x] Vercel 빌드 실패 로그에서 `handleDeleteSavedTeam` 중복 선언 확인
+- [x] `FootballPage.tsx`의 중복 삭제 핸들러 제거
+- [x] `cd frontend && npm run build` 통과
+- [x] `cd frontend && npm test` 통과
+- [x] `cd frontend && npm run lint` 통과 (기존 `WorkoutForm.tsx` warning 1건)
+- [x] `./gradlew test` 통과
+
 ### Phase 19: 실제 룰렛 팀 편성 게임 ✅
 - [x] 완전 랜덤 / 룰렛 모드 토글 추가
 - [x] 고정 멤버 제외 후 남은 멤버만 룰렛 후보로 구성
@@ -200,4 +218,3 @@
 - [x] `cd frontend && npm run lint` 통과 (기존 `WorkoutForm.tsx` warning 1건)
 - [x] `cd frontend && npm run build` 통과
 - [x] `./gradlew test` 통과
-

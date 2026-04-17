@@ -1,13 +1,14 @@
 # YongHealth 요구사항 기록
 
-이 파일은 사용자가 요청한 요구사항을 **받자마자** 기록하는 진입 문서입니다.
-세션이 끊겨도 요청이 유실되지 않도록, 구현 전·중·후 모든 단계에서 이 파일을 먼저 업데이트합니다.
+이 파일은 사용자가 명시적으로 **"요구사항"** 이라고 부른 항목만 기록하는 진입 문서입니다.
+일반 요청, 운영 지시, 확인 요청은 git에 올리지 않는 `request.local.md`에 기록합니다.
 
 ## 기록 규칙
-- 새 요청이 들어오면 아래 "Inbox"에 `YYYY-MM-DD` 날짜와 함께 원문을 최대한 그대로 적는다.
-- 요청이 분석되어 plan/spec/fix로 흩어지면, Inbox 항목에 해당 문서 링크를 덧붙인다.
-- 완료된 항목은 "완료" 섹션으로 이동하되 삭제하지 않는다 (추적성 유지).
-- 취소/보류된 항목도 "보류" 섹션으로 이동해 이유를 남긴다.
+- 사용자가 "요구사항", "이건 요구사항", "요구사항:"처럼 명시한 항목만 아래 "Inbox"에 `YYYY-MM-DD` 날짜와 함께 원문을 최대한 그대로 적는다.
+- 일반 작업 요청, 디버깅 지시, 실행/확인 요청은 `requirement.md`에 적지 않고 `request.local.md`에 기록한다.
+- 요구사항이 분석되어 plan/spec/fix로 흩어지면, Inbox 항목에 해당 문서 링크를 덧붙인다.
+- 완료된 요구사항은 "완료" 섹션으로 이동하되 삭제하지 않는다 (추적성 유지).
+- 취소/보류된 요구사항도 "보류" 섹션으로 이동해 이유를 남긴다.
 
 ---
 
@@ -27,6 +28,15 @@ _현재 작업 중인 요청_
 
 _merge 또는 배포된 요청_
 
+- 2026-04-18 — Neon DB 수동 SQL 확인
+  - 사용자 원문: "현재 neon db를 사용중인데 여기 추가할 명령문있나?"
+  - 답변: 룰렛/Vercel 수정 자체는 DB 스키마 추가 없음. 단, 보관 팀 기능 테이블이 Neon에 아직 없다면 `football_saved_team`, `football_saved_team_member` 생성 SQL 필요
+- 2026-04-18 — Vercel Next 설정 경고 및 빌드 실패 수정
+  - 사용자 원문: `outputFileTracingRoot`와 `turbopack.root` 충돌 경고 후 "vercel error"
+  - 추가 요청: "푸시해줘"
+  - 조치: Vercel 환경에서 `turbopack.root` 제외, rebase 후 발생한 `handleDeleteSavedTeam` 중복 선언 제거
+  - 커밋: `30e2190` Vercel 설정 경고 수정, `6bc5e6c` Vercel 빌드 중복 핸들러 오류 수정
+  - Vercel: preview 배포 `https://yong-health-7rcbocqny-yongs-projects-6b7f968d.vercel.app` 상태 `Ready`
 - 2026-04-18 — 커밋/푸시 및 Vercel 확인
   - 사용자 원문: "commit push and check vercel"
   - 조치: `feature/football-team-improvements` 브랜치에 커밋 `d5a94c0` 생성 후 `origin/feature/football-team-improvements`로 push
