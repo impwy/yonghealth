@@ -65,6 +65,7 @@ export default function FootballPage() {
   const [rouletteStepIndex, setRouletteStepIndex] = useState(0);
   const [roulettePhase, setRoulettePhase] = useState<RouletteSpinPhase>('idle');
 
+
   useEffect(() => {
     const fetchMembers = async () => {
       try {
@@ -241,6 +242,21 @@ export default function FootballPage() {
       setSavedTeamsError(error instanceof Error ? error.message : '팀 보관에 실패했습니다');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteSavedTeam = async (id: number) => {
+    if (!confirm('이 보관 팀을 삭제하시겠습니까?')) return;
+
+    setDeletingTeamId(id);
+    try {
+      await footballApi.deleteSavedTeam(id);
+      setSavedTeams((prev) => prev.filter((team) => team.id !== id));
+      setSavedTeamsError(null);
+    } catch (error) {
+      setSavedTeamsError(error instanceof Error ? error.message : '보관 팀 삭제에 실패했습니다');
+    } finally {
+      setDeletingTeamId(null);
     }
   };
 

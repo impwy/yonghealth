@@ -200,3 +200,4 @@
 - [x] `cd frontend && npm run lint` 통과 (기존 `WorkoutForm.tsx` warning 1건)
 - [x] `cd frontend && npm run build` 통과
 - [x] `./gradlew test` 통과
+
