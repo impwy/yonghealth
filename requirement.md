@@ -13,12 +13,7 @@
 
 ## Inbox (진행 대기/진행 중)
 
-### 2026-04-18 — #3 커밋/푸시 및 Vercel 확인
-
-**사용자 원문:**
-> commit push and check vercel
-
-**상태:** 진행 중
+_현재 진행 대기/진행 중 요청 없음_
 
 ---
 
@@ -32,6 +27,11 @@ _현재 작업 중인 요청_
 
 _merge 또는 배포된 요청_
 
+- 2026-04-18 — 커밋/푸시 및 Vercel 확인
+  - 사용자 원문: "commit push and check vercel"
+  - 조치: `feature/football-team-improvements` 브랜치에 커밋 `d5a94c0` 생성 후 `origin/feature/football-team-improvements`로 push
+  - Vercel: preview 배포 `https://yong-health-r7odsk1tm-yongs-projects-6b7f968d.vercel.app` 상태 `Ready`
+  - 참고: preview URL 직접 접근은 Vercel 보호 설정으로 `/football`이 HTTP 401을 반환하지만, `vercel inspect` 기준 빌드와 배포는 성공
 - 2026-04-18 — 팀 편성 룰렛 모드
   - 사용자 원문: "룰렛 게임 만들어줘 실제로 룰렛 시작하면 돌림판이 돌아가는 그런 게임"
   - 추가 요청: "테스트 디비니깐 놔둬도돼 한 14명까지 넣고 테스트해줘"
