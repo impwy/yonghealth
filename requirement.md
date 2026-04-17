@@ -13,27 +13,7 @@
 
 ## Inbox (진행 대기/진행 중)
 
-### 2026-04-18 — #4 Vercel Next 설정 경고 수정
-
-**사용자 원문:**
-> frontend@0.1.0 build
-> next build --webpack
-> ⚠ Both `outputFileTracingRoot` and `turbopack.root` are set, but they must have the same value.
-> Using `outputFileTracingRoot` value: /vercel/path0.
->   Applying modifyConfig from Vercel
-> ▲ Next.js 16.2.1 (webpack)
->   Creating an optimized production build ...
-> ⚠ Both `outputFileTracingRoot` and `turbopack.root` are set, but they must have the same value.
-> Using `outputFileTracingRoot` value: /vercel/path0.
-> vercel error
-
-**추가 요청(2026-04-18):**
-> 푸시해줘
-
-**확인된 추가 실패 원인:**
-- 원격 브랜치 변경을 rebase한 뒤 Vercel preview에서 `handleDeleteSavedTeam` 중복 선언으로 Webpack compile 실패
-
-**상태:** 진행 중
+_현재 진행 대기/진행 중 요청 없음_
 
 ---
 
@@ -47,6 +27,15 @@ _현재 작업 중인 요청_
 
 _merge 또는 배포된 요청_
 
+- 2026-04-18 — Neon DB 수동 SQL 확인
+  - 사용자 원문: "현재 neon db를 사용중인데 여기 추가할 명령문있나?"
+  - 답변: 룰렛/Vercel 수정 자체는 DB 스키마 추가 없음. 단, 보관 팀 기능 테이블이 Neon에 아직 없다면 `football_saved_team`, `football_saved_team_member` 생성 SQL 필요
+- 2026-04-18 — Vercel Next 설정 경고 및 빌드 실패 수정
+  - 사용자 원문: `outputFileTracingRoot`와 `turbopack.root` 충돌 경고 후 "vercel error"
+  - 추가 요청: "푸시해줘"
+  - 조치: Vercel 환경에서 `turbopack.root` 제외, rebase 후 발생한 `handleDeleteSavedTeam` 중복 선언 제거
+  - 커밋: `30e2190` Vercel 설정 경고 수정, `6bc5e6c` Vercel 빌드 중복 핸들러 오류 수정
+  - Vercel: preview 배포 `https://yong-health-7rcbocqny-yongs-projects-6b7f968d.vercel.app` 상태 `Ready`
 - 2026-04-18 — 커밋/푸시 및 Vercel 확인
   - 사용자 원문: "commit push and check vercel"
   - 조치: `feature/football-team-improvements` 브랜치에 커밋 `d5a94c0` 생성 후 `origin/feature/football-team-improvements`로 push
