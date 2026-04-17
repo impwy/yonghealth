@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
           root: rootDir,
         },
       }),
+
 };
 
 export default nextConfig;
