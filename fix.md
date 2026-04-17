@@ -163,6 +163,16 @@
   - `next/font/google` 의존을 제거하고 시스템 폰트 스택을 Tailwind `font-sans` 토큰으로 지정
   - 콜드 빌드 기준 `.next` 산출물이 약 75MB 수준으로 생성되는 것을 확인
 
+### BUG-7 Vercel Next 설정 충돌 경고
+- 증상: Vercel 빌드에서 `outputFileTracingRoot`와 `turbopack.root` 값이 다르다는 경고가 반복됨
+- 원인:
+  - Vercel은 배포 중 `outputFileTracingRoot`를 repo root(`/vercel/path0`)로 주입한다.
+  - 로컬 경고를 줄이기 위해 설정한 `turbopack.root`는 `frontend` 디렉터리를 가리켜 두 루트가 달라졌다.
+- 수정:
+  - Vercel 환경에서는 `turbopack.root`를 설정하지 않도록 `process.env.VERCEL` 조건을 추가
+  - 로컬 개발 환경에서는 기존 `turbopack.root` 설정을 유지
+  - `VERCEL=1 npm run build`, `npm run build`, `npm test`, `npm run lint`로 확인
+
 ---
 
 ## 8. 로컬 실행 관련 수정 메모

@@ -13,7 +13,21 @@
 
 ## Inbox (진행 대기/진행 중)
 
-_현재 진행 대기/진행 중 요청 없음_
+### 2026-04-18 — #4 Vercel Next 설정 경고 수정
+
+**사용자 원문:**
+> frontend@0.1.0 build
+> next build --webpack
+> ⚠ Both `outputFileTracingRoot` and `turbopack.root` are set, but they must have the same value.
+> Using `outputFileTracingRoot` value: /vercel/path0.
+>   Applying modifyConfig from Vercel
+> ▲ Next.js 16.2.1 (webpack)
+>   Creating an optimized production build ...
+> ⚠ Both `outputFileTracingRoot` and `turbopack.root` are set, but they must have the same value.
+> Using `outputFileTracingRoot` value: /vercel/path0.
+> vercel error
+
+**상태:** 진행 중
 
 ---
 

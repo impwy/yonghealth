@@ -196,6 +196,12 @@ frontend/src/
 4. Google Fonts 런타임 의존을 제거하고 시스템 폰트 스택으로 대체
 5. 콜드 빌드와 프론트엔드 유닛 테스트로 검증
 
+### Bug Fix: Vercel Next 설정 충돌 경고
+1. Vercel 빌드 로그에서 `outputFileTracingRoot`와 `turbopack.root` 충돌 경고 확인
+2. Vercel이 주입하는 `outputFileTracingRoot`와 로컬 `turbopack.root` 역할 분리
+3. `process.env.VERCEL` 기준으로 배포 환경에서는 `turbopack.root`를 제외
+4. 로컬 Webpack 빌드와 Vercel 환경 변수 모의 빌드로 검증
+
 ### Phase 19: 실제 룰렛 팀 편성 게임
 1. 완전 랜덤 / 룰렛 편성 모드 분리
 2. 고정 멤버를 먼저 배치하고 나머지 멤버만 룰렛 후보로 구성
