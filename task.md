@@ -163,3 +163,16 @@
 - [x] `spec.md` API 명세 업데이트
 - [x] `./gradlew test` 통과
 - [x] TypeScript 타입 체크 통과
+
+### Phase 18: 풋볼 편성 UX 개선 (티어 균등·고정 배정·클립보드·모바일 압축) ✅
+- [x] `teamGenerator.ts`를 min-load greedy 분배로 교체 (팀 간 티어 인원 차이 ≤ 1 보장)
+- [x] `LockedAssignments` 타입 추가 및 `generateTeams`에 사전 고정 인자 추가
+- [x] `TeamResult`에 `gradeSum`(티어 단순 합) 필드 추가
+- [x] `formatTeamsForClipboard` 유틸 추가 (`n팀: 이름, 이름` 줄바꿈 포맷)
+- [x] `MemberSelector`에 "자동 / n팀 고정" 드롭다운 추가, 카드 그리드 모바일 2열로 압축
+- [x] `FootballPage`에 `lockedAssignments` 상태 추가, 선택 해제/팀 수 변경 시 자동 정리
+- [x] 시나리오 3개 → 1개로 단순화, 같은 버튼을 "다시 굴리기"로 라벨 스왑
+- [x] 팀 카드 헤더에 인원 수와 `티어합` 표시, 그리드를 모바일 2열 / lg 3열 / xl 4열로 압축
+- [x] 클립보드 복사 버튼 (`aria-live` 피드백 + 2초 후 라벨 복원)
+- [x] `spec.md`, `fix.md`, `insight.md` 동기화
+- [x] `npx next build` 통과

@@ -1,4 +1,4 @@
-import type { FootballMember, GradeGroup, TeamResult, TeamScenario } from '@/types';
+import type { FootballMember, GradeGroup, LockedAssignments, TeamResult, TeamScenario } from '@/types';
 
 export function getGradeGroup(grade: number): GradeGroup {
   switch (grade) {
@@ -40,61 +40,114 @@ export function getBalancedTeamSizes(memberCount: number, teamCount: number): nu
   return sizes;
 }
 
-function findNextAvailableTeamIndex(
+function sumGrades(members: FootballMember[]): number {
+  return members.reduce((sum, member) => sum + member.grade, 0);
+}
+
+function countTier(team: FootballMember[], tier: GradeGroup): number {
+  let count = 0;
+  for (const member of team) {
+    if (getGradeGroup(member.grade) === tier) count += 1;
+  }
+  return count;
+}
+
+function pickTeamForTier(
   teams: FootballMember[][],
   targetSizes: number[],
-  startIndex: number,
+  tier: GradeGroup,
 ): number {
-  for (let offset = 0; offset < teams.length; offset++) {
-    const teamIndex = (startIndex + offset) % teams.length;
-    if (teams[teamIndex].length < targetSizes[teamIndex]) {
-      return teamIndex;
+  const randomOrder = shuffle(Array.from({ length: teams.length }, (_, i) => i));
+
+  let bestTierCount = Infinity;
+  let bestTotal = Infinity;
+  let bestTeam = -1;
+
+  for (const idx of randomOrder) {
+    if (teams[idx].length >= targetSizes[idx]) continue;
+    const tierCount = countTier(teams[idx], tier);
+    const total = teams[idx].length;
+    if (tierCount < bestTierCount || (tierCount === bestTierCount && total < bestTotal)) {
+      bestTierCount = tierCount;
+      bestTotal = total;
+      bestTeam = idx;
     }
   }
 
-  return startIndex;
+  if (bestTeam !== -1) return bestTeam;
+
+  for (const idx of randomOrder) {
+    const tierCount = countTier(teams[idx], tier);
+    const total = teams[idx].length;
+    if (tierCount < bestTierCount || (tierCount === bestTierCount && total < bestTotal)) {
+      bestTierCount = tierCount;
+      bestTotal = total;
+      bestTeam = idx;
+    }
+  }
+
+  return bestTeam;
 }
 
-export function generateTeams(members: FootballMember[], teamCount: number): TeamResult[] {
+function isValidLock(value: unknown, teamCount: number): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value < teamCount;
+}
+
+export function generateTeams(
+  members: FootballMember[],
+  teamCount: number,
+  lockedAssignments: LockedAssignments = {},
+): TeamResult[] {
   const teams: FootballMember[][] = Array.from({ length: teamCount }, () => []);
   const targetSizes = getBalancedTeamSizes(members.length, teamCount);
 
-  // 티어 그룹별로 분류
+  const remaining: FootballMember[] = [];
+  for (const member of members) {
+    const lockedTeam = lockedAssignments[member.id];
+    if (isValidLock(lockedTeam, teamCount)) {
+      teams[lockedTeam].push(member);
+    } else {
+      remaining.push(member);
+    }
+  }
+
   const groups = new Map<GradeGroup, FootballMember[]>();
   for (const group of GRADE_GROUP_ORDER) {
     groups.set(group, []);
   }
-  for (const member of members) {
-    const group = getGradeGroup(member.grade);
-    groups.get(group)!.push(member);
+  for (const member of remaining) {
+    groups.get(getGradeGroup(member.grade))!.push(member);
   }
 
-  // 각 티어별로 셔플 후, 팀별 목표 인원 수를 넘기지 않도록 분배
   for (const group of GRADE_GROUP_ORDER) {
     const groupMembers = shuffle(groups.get(group)!);
-    if (groupMembers.length === 0) continue;
-
-    let nextTeamIndex = Math.floor(Math.random() * teamCount);
     for (const member of groupMembers) {
-      const teamIndex = findNextAvailableTeamIndex(teams, targetSizes, nextTeamIndex);
-      teams[teamIndex].push(member);
-      nextTeamIndex = (teamIndex + 1) % teamCount;
+      const idx = pickTeamForTier(teams, targetSizes, group);
+      teams[idx].push(member);
     }
   }
 
-  return teams.map((members, idx) => ({
+  return teams.map((teamMembers, idx) => ({
     teamNumber: idx + 1,
-    members,
+    members: teamMembers,
+    gradeSum: sumGrades(teamMembers),
   }));
 }
 
 export function generateScenarios(
   members: FootballMember[],
   teamCount: number,
-  scenarioCount: number = 3,
+  scenarioCount: number = 1,
+  lockedAssignments: LockedAssignments = {},
 ): TeamScenario[] {
   return Array.from({ length: scenarioCount }, (_, i) => ({
     id: i + 1,
-    teams: generateTeams(members, teamCount),
+    teams: generateTeams(members, teamCount, lockedAssignments),
   }));
+}
+
+export function formatTeamsForClipboard(teams: TeamResult[]): string {
+  return teams
+    .map((team) => `${team.teamNumber}팀: ${team.members.map((m) => m.name).join(', ')}`)
+    .join('\n');
 }

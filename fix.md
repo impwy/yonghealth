@@ -66,14 +66,25 @@
 ### 신규 로직
 - `frontend/src/lib/teamGenerator.ts`
   - 티어별 셔플
-  - 시작 팀 위치 랜덤화
   - 목표 팀 인원 수 계산
-  - 목표 인원 수를 넘기지 않는 균등 분배
-  - 3개 시나리오 동시 생성
+  - min-load greedy 분배: 각 티어를 가장 적게 보유한 팀부터 배정해 티어 간 차이를 최대 1명으로 보장
+  - `lockedAssignments` 사전 배치 후 잔여 멤버 분배
+  - 팀별 `gradeSum`(단순 티어 합) 계산
+  - `formatTeamsForClipboard`: `n팀: 이름, 이름` 줄바꿈 포맷
+  - 기본 1개 시나리오 생성 (다시 굴리기로 재계산)
 
 ### 타입/API 추가
-- `types/index.ts`에 `FootballMember`, `FootballMemberRequest`, `GradeGroup`, `TeamResult`, `TeamScenario` 추가
+- `types/index.ts`에 `FootballMember`, `FootballMemberRequest`, `GradeGroup`, `TeamResult`(+`gradeSum`), `TeamScenario`, `LockedAssignments` 추가
 - `lib/api.ts`에 `footballApi` 추가
+
+### 편성 UX 개선 (2026-04-17)
+- 시나리오를 3개 → 1개로 단순화, 같은 버튼 라벨을 "랜덤 편성 생성 ↔ 다시 굴리기"로 전환
+- 팀 카드 헤더에 인원 수와 `티어합` 표시
+- 클립보드 복사 버튼 추가 (`n팀: 이름, 이름` 포맷, `aria-live` 피드백)
+- 팀 카드 그리드를 모바일 2열 / lg 3열 / xl 4열로 압축
+- `MemberSelector` 카드 그리드를 모바일 2열로 압축하고 "자동 / n팀 고정" 드롭다운 추가
+- 멤버 선택 해제 시 해당 멤버의 고정 자동 해제
+- 팀 수를 줄여 고정 팀 번호가 범위를 벗어나면 자동 해제
 
 ---
 

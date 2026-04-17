@@ -146,9 +146,12 @@ export type GradeGroup = '1티어' | '2티어' | '3티어' | '4티어' | '5티�
 export interface TeamResult {
   teamNumber: number;
   members: FootballMember[];
+  gradeSum: number;
 }
 
 export interface TeamScenario {
   id: number;
   teams: TeamResult[];
 }
+
+export type LockedAssignments = Record<number, number>;
